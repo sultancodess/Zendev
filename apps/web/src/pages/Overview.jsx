@@ -7,11 +7,9 @@ import {
   TrendingUp,
   UserX,
   ArrowUpRight,
-  Sparkles,
   Zap,
   Activity,
   ArrowRight,
-  BarChart3,
 } from 'lucide-react';
 import { api } from '../services/api.js';
 
@@ -125,14 +123,15 @@ export function Overview({ onNavigate }) {
         <div className="relative z-10 p-6 flex flex-col md:flex-row md:items-center justify-between gap-5">
           <div>
             {/* Live badge */}
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-emerald-500/30 bg-emerald-500/10 text-emerald-300 text-[10px] font-extrabold uppercase tracking-widest mb-4"
-              style={{ boxShadow: '0 0 12px rgba(34,197,94,0.15)' }}
+            <div
+              className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-widest mb-4"
+              style={{ background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.25)', color: '#86efac', boxShadow: '0 0 12px rgba(34,197,94,0.12)' }}
             >
               <span className="relative flex h-1.5 w-1.5">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
                 <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-400" />
               </span>
-              EvilChat · Autonomous Mode Active
+              Derma.ai · Autonomous Mode Active
             </div>
 
             <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight leading-tight">
@@ -143,40 +142,22 @@ export function Overview({ onNavigate }) {
               Automation
             </h1>
             <p className="mt-2 text-sm text-slate-400 max-w-xl leading-relaxed">
-              Multi-intent AI handling patient triage, pricing FAQs, Google Doc sync, and real-time doctor booking.
+              AI-powered patient triage, pricing FAQs, Google Doc sync, and real-time doctor booking.
             </p>
 
             {/* Quick stats row */}
-            <div className="flex items-center gap-4 mt-4 flex-wrap">
+            <div className="flex items-center gap-5 mt-4 flex-wrap">
               {[
                 { label: 'Enquiries Today', value: overview.totalEnquiries },
                 { label: 'Booking Rate',    value: rates.bookingRate },
                 { label: 'AI Uptime',       value: '99.9%' },
               ].map(s => (
-                <div key={s.label} className="flex items-center gap-2">
-                  <span className="text-lg font-black text-white">{s.value}</span>
-                  <span className="text-[10px] text-slate-500 font-semibold">{s.label}</span>
+                <div key={s.label} className="flex items-center gap-1.5">
+                  <span className="text-xl font-black text-white">{s.value}</span>
+                  <span className="text-[10px] text-slate-500 font-medium leading-tight">{s.label}</span>
                 </div>
               ))}
             </div>
-          </div>
-
-          {/* CTA */}
-          <div className="flex items-center gap-3 shrink-0">
-            <button
-              onClick={() => onNavigate('simulator')}
-              className="btn-glow px-5 py-2.5 rounded-xl bg-emerald-500 text-black font-extrabold text-sm flex items-center gap-2"
-            >
-              <Sparkles className="w-4 h-4" />
-              Test AI Sandbox
-            </button>
-            <button
-              onClick={() => onNavigate('analytics')}
-              className="px-4 py-2.5 rounded-xl border border-white/10 text-slate-300 hover:text-white hover:border-white/20 hover:bg-white/5 font-semibold text-sm flex items-center gap-2 transition-all"
-            >
-              <BarChart3 className="w-4 h-4" />
-              <span className="hidden sm:inline">Analytics</span>
-            </button>
           </div>
         </div>
       </div>
@@ -255,9 +236,12 @@ export function Overview({ onNavigate }) {
                 <p className="text-[10px] text-slate-500">Real-time pipeline view</p>
               </div>
             </div>
-            <span className="badge-green text-[9px] font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider">
-              Live
-            </span>
+            <span
+            className="text-[9px] font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider"
+            style={{ background: 'rgba(34,197,94,0.12)', color: '#86efac', border: '1px solid rgba(34,197,94,0.25)' }}
+          >
+            Live
+          </span>
           </div>
 
           <div className="space-y-5">
@@ -302,7 +286,7 @@ export function Overview({ onNavigate }) {
               <Zap className="w-4 h-4 text-emerald-400" />
             </div>
             <div>
-              <h3 className="font-bold text-sm text-white">Action Center</h3>
+              <span className="font-bold text-sm text-white">AI Knowledge Sync</span>
               <p className="text-[10px] text-slate-500">Quick controls</p>
             </div>
           </div>
