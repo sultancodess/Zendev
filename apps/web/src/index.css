@@ -1,4 +1,4 @@
-/* ─── Google Fonts: Inter + JetBrains Mono ─── */
+/* ─── Google Fonts ─── */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 @tailwind base;
@@ -6,9 +6,7 @@
 @tailwind utilities;
 
 @layer base {
-  *, *::before, *::after {
-    box-sizing: border-box;
-  }
+  *, *::before, *::after { box-sizing: border-box; }
 
   html {
     scroll-behavior: smooth;
@@ -17,198 +15,164 @@
   }
 
   body {
-    @apply font-sans bg-dark-950 text-slate-100 antialiased;
-    background-image:
-      radial-gradient(ellipse 80% 50% at 50% -20%, rgba(34,197,94,0.06) 0%, transparent 60%),
-      radial-gradient(ellipse 60% 40% at 80% 100%, rgba(16,185,129,0.04) 0%, transparent 50%);
+    font-family: 'Inter', system-ui, sans-serif;
+    background: #f4f5f7;
+    color: #111111;
     min-height: 100vh;
   }
 
   ::selection {
-    @apply bg-emerald-500 text-black;
+    background: #22c55e;
+    color: #fff;
   }
 }
 
-/* ─── Custom Scrollbars ─── */
-::-webkit-scrollbar        { width: 5px; height: 5px; }
+/* ─── Scrollbars ─── */
+::-webkit-scrollbar        { width: 4px; height: 4px; }
 ::-webkit-scrollbar-track  { background: transparent; }
-::-webkit-scrollbar-thumb  {
-  background: linear-gradient(180deg, #22c55e44, #16a34a44);
-  border-radius: 9999px;
-  border: 1px solid rgba(34,197,94,0.1);
-}
-::-webkit-scrollbar-thumb:hover { background: linear-gradient(180deg, #22c55e, #16a34a); }
+::-webkit-scrollbar-thumb  { background: #d1d5db; border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
 
-/* ─── Glassmorphic Card Base ─── */
-.glass-card {
-  background: linear-gradient(135deg, rgba(15,22,36,0.85) 0%, rgba(12,18,32,0.92) 100%);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255,255,255,0.05);
-  box-shadow:
-    0 4px 24px rgba(0,0,0,0.5),
-    0 1px 0 rgba(255,255,255,0.04) inset;
-}
-
-.glass-card-hover {
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-}
-.glass-card-hover:hover {
-  border-color: rgba(34,197,94,0.3);
-  box-shadow:
-    0 8px 40px rgba(0,0,0,0.6),
-    0 0 25px rgba(34,197,94,0.1),
-    0 1px 0 rgba(255,255,255,0.05) inset;
-  transform: translateY(-1px);
-}
-
-/* ─── Glowing Green Border ─── */
-.border-glow {
-  border: 1px solid rgba(34,197,94,0.35);
-  box-shadow: 0 0 15px rgba(34,197,94,0.12), inset 0 0 15px rgba(34,197,94,0.04);
-}
-
-/* ─── WhatsApp Dark Chat Background ─── */
-.chat-dark-bg {
-  background-color: #0b1117;
-  background-image:
-    radial-gradient(rgba(34,197,94,0.055) 1px, transparent 1px);
-  background-size: 22px 22px;
-}
-
-/* ─── Stat Card Gradient Overlay ─── */
-.stat-card {
-  position: relative;
-  overflow: hidden;
-}
-.stat-card::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, rgba(255,255,255,0.025) 0%, transparent 60%);
-  pointer-events: none;
-  border-radius: inherit;
-}
-
-/* ─── Shimmer Loading Effect ─── */
-.shimmer {
-  background: linear-gradient(
-    90deg,
-    rgba(255,255,255,0) 0%,
-    rgba(255,255,255,0.04) 50%,
-    rgba(255,255,255,0) 100%
-  );
-  background-size: 200% 100%;
-  animation: shimmer 2s linear infinite;
-}
-@keyframes shimmer {
-  0%   { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
-}
-
-/* ─── Nav Item Active Glow ─── */
-.nav-active {
-  background: linear-gradient(90deg, rgba(34,197,94,0.2) 0%, rgba(34,197,94,0.06) 100%);
-  border: 1px solid rgba(34,197,94,0.35);
-  box-shadow: 0 0 20px rgba(34,197,94,0.12), inset 0 0 10px rgba(34,197,94,0.05);
-}
-
-/* ─── Button Pulse Glow ─── */
-.btn-glow {
-  position: relative;
-  overflow: hidden;
-  box-shadow: 0 0 15px rgba(34,197,94,0.35);
-  transition: all 0.2s ease;
-}
-.btn-glow::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, transparent 50%);
-  pointer-events: none;
-}
-.btn-glow:hover {
-  box-shadow: 0 0 25px rgba(34,197,94,0.55), 0 4px 16px rgba(0,0,0,0.4);
-  transform: translateY(-1px);
-}
-.btn-glow:active {
-  transform: translateY(0px);
-  box-shadow: 0 0 12px rgba(34,197,94,0.3);
-}
-
-/* ─── Page Transition ─── */
-.page-enter {
-  animation: slideUp 0.3s ease-out;
-}
-
-/* ─── Input Focus Ring ─── */
-.input-dark {
-  @apply bg-dark-850 text-white border border-dark-700 rounded-xl px-3.5 py-2 text-xs;
-  @apply focus:outline-none focus:ring-2 focus:ring-emerald-500/60 focus:border-emerald-500/50;
-  transition: all 0.15s ease;
-}
-.input-dark::placeholder { color: #4b5563; }
-.input-dark:focus {
-  box-shadow: 0 0 0 2px rgba(34,197,94,0.2), 0 0 12px rgba(34,197,94,0.08);
-}
-
-/* ─── Metric Number Gradient ─── */
-.metric-value {
-  background: linear-gradient(135deg, #ffffff 0%, #bbf7d0 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-/* ─── Emerald Progress Bar ─── */
-.progress-bar {
-  background: linear-gradient(90deg, #059669 0%, #22c55e 50%, #4ade80 100%);
-  box-shadow: 0 0 12px rgba(34,197,94,0.4);
-  border-radius: 9999px;
-  transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* ─── Pulse Dot ─── */
-.pulse-dot {
-  @apply relative inline-flex;
-}
-.pulse-dot::before {
-  content: '';
-  @apply absolute inset-0 rounded-full bg-emerald-400;
-  animation: ping 1.2s cubic-bezier(0, 0, 0.2, 1) infinite;
-}
-
-/* ─── Badge Glow ─── */
-.badge-green {
-  background: rgba(34,197,94,0.12);
-  border: 1px solid rgba(34,197,94,0.35);
-  color: #86efac;
-  box-shadow: 0 0 10px rgba(34,197,94,0.12);
-}
-
-/* ─── Divider ─── */
-.divider {
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.07), transparent);
-}
-
-/* ─── Hide scrollbar but keep functionality ─── */
+/* ─── Hide scrollbar ─── */
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-/* ─── Code / Mono Text ─── */
-.mono {
-  font-family: 'JetBrains Mono', 'Fira Code', monospace;
-  font-feature-settings: 'calt' 1;
+/* ─── Stat Card ─── */
+.stat-card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  transition: box-shadow 0.15s ease, border-color 0.15s ease;
+}
+.stat-card:hover {
+  box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+  border-color: #d1d5db;
 }
 
-/* ─── Subtle Stripe pattern on hover cards ─── */
-.stripe-bg {
-  background-image: repeating-linear-gradient(
-    -45deg,
-    transparent,
-    transparent 4px,
-    rgba(255,255,255,0.01) 4px,
-    rgba(255,255,255,0.01) 8px
-  );
+/* ─── Panel Card ─── */
+.panel {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
 }
+
+/* ─── Sidebar Nav Active ─── */
+.nav-active {
+  background: #111111;
+  color: #ffffff;
+}
+
+/* ─── Green Badge ─── */
+.badge-green {
+  background: #dcfce7;
+  color: #15803d;
+  border: 1px solid #bbf7d0;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 4px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* ─── Input ─── */
+.input-base {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 7px 12px;
+  font-size: 13px;
+  color: #111;
+  outline: none;
+  transition: border-color 0.15s;
+  width: 100%;
+}
+.input-base:focus {
+  border-color: #22c55e;
+  box-shadow: 0 0 0 3px rgba(34,197,94,0.1);
+}
+.input-base::placeholder { color: #9ca3af; }
+
+/* ─── Button Primary (black) ─── */
+.btn-primary {
+  background: #111111;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: background 0.15s, box-shadow 0.15s;
+}
+.btn-primary:hover { background: #222222; }
+.btn-primary:active { background: #000000; }
+
+/* ─── Button Ghost ─── */
+.btn-ghost {
+  background: transparent;
+  color: #374151;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 7px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.15s;
+}
+.btn-ghost:hover { background: #f9fafb; border-color: #d1d5db; }
+
+/* ─── Bar Chart Bars ─── */
+.bar {
+  background: #111111;
+  border-radius: 4px 4px 0 0;
+  transition: background 0.15s;
+}
+.bar:hover { background: #333333; }
+.bar-green {
+  background: #22c55e;
+  border-radius: 4px 4px 0 0;
+}
+
+/* ─── Divider ─── */
+.divider { height: 1px; background: #f3f4f6; }
+
+/* ─── Table ─── */
+.tbl-head {
+  background: #f9fafb;
+  border-bottom: 1px solid #e5e7eb;
+  font-size: 11px;
+  font-weight: 700;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+}
+.tbl-row {
+  border-bottom: 1px solid #f3f4f6;
+  transition: background 0.1s;
+}
+.tbl-row:hover { background: #f9fafb; }
+
+/* ─── Tag / Status Pill ─── */
+.tag { border-radius: 6px; padding: 2px 8px; font-size: 11px; font-weight: 600; }
+.tag-green  { background: #dcfce7; color: #15803d; }
+.tag-yellow { background: #fef9c3; color: #92400e; }
+.tag-red    { background: #fee2e2; color: #991b1b; }
+.tag-blue   { background: #dbeafe; color: #1e40af; }
+.tag-gray   { background: #f3f4f6; color: #374151; }
+
+/* ─── Page entry animation ─── */
+.page-enter { animation: fadeUp 0.2s ease-out; }
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── Mono text ─── */
+.mono { font-family: 'JetBrains Mono', monospace; }
