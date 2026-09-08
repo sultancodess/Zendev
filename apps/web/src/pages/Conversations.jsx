@@ -266,7 +266,7 @@ export function Conversations() {
                         className="btn-glow px-3 py-1.5 rounded-xl bg-emerald-500 text-black font-extrabold text-[10px] flex items-center gap-1.5"
                       >
                         <Sparkles className="w-3.5 h-3.5" />
-                        Resume EvilChat AI
+                        Resume Derma AI
                       </button>
                     )}
                   </div>
@@ -300,7 +300,7 @@ export function Conversations() {
                             {isCustomer ? (
                               <><Phone className="w-2.5 h-2.5" />{conv.patient_name}</>
                             ) : isAI ? (
-                              <><Sparkles className="w-2.5 h-2.5" />EvilChat AI</>
+                              <><Sparkles className="w-2.5 h-2.5" />Derma AI</>
                             ) : (
                               <><User className="w-2.5 h-2.5" />Staff Reply</>
                             )}

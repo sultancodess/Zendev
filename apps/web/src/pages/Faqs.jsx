@@ -94,7 +94,7 @@ export function Faqs() {
           <div>
             <h3 className="font-bold text-base text-white">Clinic-Approved Knowledge Base & FAQs</h3>
             <p className="text-xs text-slate-400">
-              Only clinic-approved entries are shared by EvilChat AI to guarantee zero hallucination
+              Only clinic-approved entries are shared by Derma AI to guarantee zero hallucination
             </p>
           </div>
         </div>
@@ -227,7 +227,7 @@ export function Faqs() {
                   className="rounded text-emerald-500 focus:ring-emerald-500 bg-zinc-900 border-zinc-700"
                 />
                 <label htmlFor="approvedCheck" className="text-xs font-medium text-slate-300">
-                  Approved by Clinic Lead (Available to EvilChat WhatsApp Bot)
+                  Approved by Clinic Lead (Available to Derma WhatsApp Bot)
                 </label>
               </div>
 
@@ -255,3 +255,4 @@ export function Faqs() {
 }
 
 export default Faqs;
+

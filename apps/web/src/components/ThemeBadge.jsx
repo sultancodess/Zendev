@@ -8,7 +8,7 @@ export function ThemeBadge({ variant = 'header' }) {
     return (
       <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-950/60 border border-emerald-500/40 text-emerald-400 text-[11px] font-semibold shadow-[0_0_12px_rgba(34,197,94,0.15)]">
         <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-        <span>EvilChat Dark</span>
+        <span>Derma Dark</span>
       </div>
     );
   }
@@ -26,7 +26,7 @@ export function ThemeBadge({ variant = 'header' }) {
         </div>
 
         <div className="flex items-center gap-1.5">
-          <span className="text-white font-bold tracking-tight">EvilChat</span>
+          <span className="text-white font-bold tracking-tight">Derma</span>
           <span className="text-emerald-400 font-extrabold text-[10px] px-1.5 py-0.2 rounded bg-emerald-500/15 border border-emerald-500/30">
             OBSIDIAN
           </span>
@@ -49,7 +49,7 @@ export function ThemeBadge({ variant = 'header' }) {
                   <Zap className="w-4 h-4" />
                 </div>
                 <div>
-                  <h4 className="font-bold text-white text-xs">EvilChat Engine v2.4</h4>
+                  <h4 className="font-bold text-white text-xs">Derma Engine v2.4</h4>
                   <p className="text-[10px] text-emerald-400">Green & Obsidian Theme</p>
                 </div>
               </div>
@@ -97,3 +97,4 @@ export function ThemeBadge({ variant = 'header' }) {
 }
 
 export default ThemeBadge;
+

@@ -91,7 +91,7 @@ export function Services() {
           </div>
           <div>
             <h3 className="font-bold text-base text-white">Treatments & Pricing Catalog</h3>
-            <p className="text-xs text-slate-400">EvilChat AI reads current prices & durations directly from this database</p>
+            <p className="text-xs text-slate-400">Derma AI reads current prices & durations directly from this database</p>
           </div>
         </div>
 
@@ -208,7 +208,7 @@ export function Services() {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">Description (for EvilChat AI Bot)</label>
+                <label className="block text-xs font-semibold text-slate-300 mb-1">Description (for Derma AI Bot)</label>
                 <textarea
                   rows={3}
                   value={formData.description}
@@ -242,3 +242,4 @@ export function Services() {
 }
 
 export default Services;
+

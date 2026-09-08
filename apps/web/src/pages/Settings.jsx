@@ -114,7 +114,7 @@ export function Settings() {
           <SettingsIcon className="w-5 h-5 text-emerald-400" />
         </div>
         <div>
-          <h2 className="font-bold text-base text-white">EvilChat Settings & Integrations</h2>
+          <h2 className="font-bold text-base text-white">Derma Settings & Integrations</h2>
           <p className="text-[10px] text-slate-500 mt-0.5">Google Docs sync, Meta WhatsApp credentials, clinic config & DPDP audit trail</p>
         </div>
       </div>
@@ -280,3 +280,4 @@ export function Settings() {
 }
 
 export default Settings;
+

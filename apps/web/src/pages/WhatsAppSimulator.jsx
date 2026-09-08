@@ -47,7 +47,7 @@ export function WhatsAppSimulator() {
         setMessages([
           {
             sender: 'AI',
-            text: 'Namaste! Welcome to EvilChat DermaCare WhatsApp Assistant.\n\nHow can I help you today? You can ask about consultation fees, treatments, or book an appointment.',
+            text: 'Namaste! Welcome to Derma DermaCare WhatsApp Assistant.\n\nHow can I help you today? You can ask about consultation fees, treatments, or book an appointment.',
             timestamp: new Date().toISOString()
           }
         ]);
@@ -115,7 +115,7 @@ export function WhatsAppSimulator() {
       setMessages([
         {
           sender: 'AI',
-          text: 'Namaste! Welcome to EvilChat DermaCare WhatsApp Assistant.\n\nHow can I help you today?',
+          text: 'Namaste! Welcome to Derma DermaCare WhatsApp Assistant.\n\nHow can I help you today?',
           timestamp: new Date().toISOString()
         }
       ]);
@@ -133,7 +133,7 @@ export function WhatsAppSimulator() {
             <Smartphone className="w-5 h-5" />
           </div>
           <div>
-            <h3 className="font-bold text-base text-white">EvilChat Interactive Sandbox & Simulator</h3>
+            <h3 className="font-bold text-base text-white">Derma Interactive Sandbox & Simulator</h3>
             <p className="text-xs text-slate-400">
               Live test bench for WhatsApp Cloud API webhooks, intent engine, and appointment booking
             </p>
@@ -158,7 +158,7 @@ export function WhatsAppSimulator() {
               <span>One-Click Test Scenarios</span>
             </h4>
             <p className="text-xs text-slate-400">
-              Trigger customer intents to inspect EvilChat AI safety guardrails:
+              Trigger customer intents to inspect Derma AI safety guardrails:
             </p>
 
             <div className="space-y-2">
@@ -209,7 +209,7 @@ export function WhatsAppSimulator() {
                     EC
                   </div>
                   <div>
-                    <h5 className="font-bold text-xs tracking-wide text-white">EvilChat DermaCare</h5>
+                    <h5 className="font-bold text-xs tracking-wide text-white">Derma DermaCare</h5>
                     <p className="text-[10px] text-emerald-400 font-medium">Official WhatsApp AI Agent</p>
                   </div>
                 </div>
@@ -265,7 +265,7 @@ export function WhatsAppSimulator() {
                 {loading && (
                   <div className="flex items-center gap-1.5 text-xs text-emerald-300 bg-zinc-900/90 px-3 py-1.5 rounded-full w-fit border border-emerald-500/30">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
-                    <span>EvilChat AI is formulating response...</span>
+                    <span>Derma AI is formulating response...</span>
                   </div>
                 )}
                 <div ref={chatBottomRef} />
@@ -298,3 +298,4 @@ export function WhatsAppSimulator() {
 }
 
 export default WhatsAppSimulator;
+
