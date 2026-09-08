@@ -1,4 +1,4 @@
-# DermaCare — WhatsApp AI Lead & Appointment System (PRD V1.0)
+# Derma.ai — WhatsApp AI Lead & Appointment System (PRD V1.0)
 
 Production-ready, grounded WhatsApp AI assistant and administrative management system for Dermatology & Aesthetic Clinics.
 
