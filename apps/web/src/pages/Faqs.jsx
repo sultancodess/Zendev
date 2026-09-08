@@ -86,22 +86,22 @@ export function Faqs() {
   return (
     <div className="space-y-5">
       {/* Header */}
-      <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-[#0A0F18] p-5 rounded-2xl border border-zinc-800/90 shadow-[0_4px_20px_rgba(0,0,0,0.5)] flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-xl bg-brand-50 text-brand-700">
+          <div className="p-2.5 rounded-xl bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
             <HelpCircle className="w-5 h-5" />
           </div>
           <div>
-            <h3 className="font-bold text-base text-slate-800">Clinic-Approved Knowledge Base & FAQs</h3>
-            <p className="text-xs text-slate-500">
-              Only clinic-approved entries are shared by AI to guarantee zero hallucination
+            <h3 className="font-bold text-base text-white">Clinic-Approved Knowledge Base & FAQs</h3>
+            <p className="text-xs text-slate-400">
+              Only clinic-approved entries are shared by EvilChat AI to guarantee zero hallucination
             </p>
           </div>
         </div>
 
         <button
           onClick={() => handleOpenModal()}
-          className="px-3.5 py-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs flex items-center gap-1.5 shadow-md shadow-brand-600/20 transition-all self-start md:self-auto"
+          className="px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-extrabold text-xs flex items-center gap-1.5 shadow-[0_0_15px_rgba(34,197,94,0.3)] transition-all self-start md:self-auto"
         >
           <Plus className="w-4 h-4" />
           <span>Add Approved FAQ</span>
@@ -110,13 +110,13 @@ export function Faqs() {
 
       {/* Search Bar */}
       <div className="relative">
-        <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+        <Search className="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
         <input
           type="text"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search clinic FAQs by question, answer, category..."
-          className="w-full pl-10 pr-4 py-2.5 text-xs bg-white rounded-2xl border border-slate-200 shadow-xs focus:ring-2 focus:ring-brand-500 focus:outline-none"
+          className="w-full pl-10 pr-4 py-2.5 text-xs bg-[#0A0F18] rounded-2xl border border-zinc-800 shadow-md focus:ring-2 focus:ring-emerald-500 focus:outline-none text-white placeholder-slate-500"
         />
       </div>
 
@@ -125,27 +125,27 @@ export function Faqs() {
         {filteredFaqs.map((faq) => (
           <div
             key={faq.id}
-            className="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm hover:shadow-md transition-all flex flex-col sm:flex-row sm:items-start justify-between gap-3"
+            className="bg-[#0A0F18] rounded-2xl p-5 border border-zinc-800/90 shadow-md hover:border-emerald-500/40 transition-all flex flex-col sm:flex-row sm:items-start justify-between gap-3"
           >
-            <div className="space-y-1.5 flex-1">
-              <div className="flex items-center gap-2">
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 uppercase">
+            <div className="space-y-2 flex-1">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-zinc-800 text-slate-300 uppercase border border-zinc-700">
                   {faq.category}
                 </span>
                 {faq.approved && (
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1">
-                    <CheckCircle2 className="w-3 h-3" /> Clinic Approved
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center gap-1">
+                    <CheckCircle2 className="w-3 h-3 text-emerald-400" /> Clinic Approved
                   </span>
                 )}
                 {faq.source && (
-                  <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-blue-50 text-blue-700">
+                  <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/30">
                     {faq.source}
                   </span>
                 )}
               </div>
 
-              <h4 className="font-bold text-sm text-slate-900">{faq.question}</h4>
-              <p className="text-xs text-slate-600 leading-relaxed bg-slate-50/70 p-3 rounded-xl border border-slate-100">
+              <h4 className="font-bold text-sm text-white">{faq.question}</h4>
+              <p className="text-xs text-slate-300 leading-relaxed bg-zinc-900/80 p-3.5 rounded-xl border border-zinc-800">
                 {faq.answer}
               </p>
             </div>
@@ -153,13 +153,13 @@ export function Faqs() {
             <div className="flex items-center gap-1.5 self-end sm:self-start">
               <button
                 onClick={() => handleOpenModal(faq)}
-                className="p-1.5 rounded-lg text-slate-400 hover:text-brand-600 hover:bg-brand-50 transition-colors"
+                className="p-1.5 rounded-lg text-slate-400 hover:text-emerald-400 hover:bg-zinc-800 transition-colors"
               >
                 <Edit2 className="w-3.5 h-3.5" />
               </button>
               <button
                 onClick={() => handleDelete(faq.id)}
-                className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors"
+                className="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 transition-colors"
               >
                 <Trash2 className="w-3.5 h-3.5" />
               </button>
@@ -170,51 +170,51 @@ export function Faqs() {
 
       {/* FAQ Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200">
-            <div className="flex items-center justify-between mb-4">
-              <h4 className="font-bold text-base text-slate-800">
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="bg-[#0A0F18] rounded-2xl max-w-md w-full p-6 shadow-2xl border border-emerald-500/30">
+            <div className="flex items-center justify-between mb-4 pb-3 border-b border-zinc-800">
+              <h4 className="font-bold text-base text-white">
                 {editingFaq ? 'Edit FAQ' : 'Add Clinic Approved FAQ'}
               </h4>
-              <button onClick={() => setShowModal(false)} className="text-slate-400 hover:text-slate-700">
+              <button onClick={() => setShowModal(false)} className="text-slate-400 hover:text-white">
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-3.5">
               <div>
-                <label className="block text-xs font-semibold text-slate-600 mb-1">Category</label>
+                <label className="block text-xs font-semibold text-slate-300 mb-1">Category</label>
                 <input
                   type="text"
                   required
                   value={formData.category}
                   onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                   placeholder="e.g. Consultation & Pricing"
-                  className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-500"
+                  className="w-full px-3.5 py-2 text-xs rounded-xl border border-zinc-800 bg-zinc-900 text-white focus:ring-2 focus:ring-emerald-500"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-600 mb-1">Question</label>
+                <label className="block text-xs font-semibold text-slate-300 mb-1">Question</label>
                 <input
                   type="text"
                   required
                   value={formData.question}
                   onChange={(e) => setFormData({ ...formData, question: e.target.value })}
                   placeholder="What is the consultation fee?"
-                  className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-500"
+                  className="w-full px-3.5 py-2 text-xs rounded-xl border border-zinc-800 bg-zinc-900 text-white focus:ring-2 focus:ring-emerald-500"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-600 mb-1">Clinic Approved Answer</label>
+                <label className="block text-xs font-semibold text-slate-300 mb-1">Clinic Approved Answer</label>
                 <textarea
                   rows={4}
                   required
                   value={formData.answer}
                   onChange={(e) => setFormData({ ...formData, answer: e.target.value })}
                   placeholder="Provide precise clinic approved wording..."
-                  className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-500"
+                  className="w-full px-3.5 py-2 text-xs rounded-xl border border-zinc-800 bg-zinc-900 text-white focus:ring-2 focus:ring-emerald-500"
                 />
               </div>
 
@@ -224,10 +224,10 @@ export function Faqs() {
                   id="approvedCheck"
                   checked={formData.approved}
                   onChange={(e) => setFormData({ ...formData, approved: e.target.checked })}
-                  className="rounded text-brand-600 focus:ring-brand-500"
+                  className="rounded text-emerald-500 focus:ring-emerald-500 bg-zinc-900 border-zinc-700"
                 />
-                <label htmlFor="approvedCheck" className="text-xs font-medium text-slate-700">
-                  Approved by Clinic Lead (Available to AI WhatsApp Bot)
+                <label htmlFor="approvedCheck" className="text-xs font-medium text-slate-300">
+                  Approved by Clinic Lead (Available to EvilChat WhatsApp Bot)
                 </label>
               </div>
 
@@ -235,13 +235,13 @@ export function Faqs() {
                 <button
                   type="button"
                   onClick={() => setShowModal(false)}
-                  className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100"
+                  className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white hover:bg-zinc-800"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-xs font-bold shadow-md shadow-brand-600/20"
+                  className="px-5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-extrabold shadow-[0_0_15px_rgba(34,197,94,0.3)]"
                 >
                   Save FAQ
                 </button>

@@ -61,7 +61,11 @@ export function AppContent() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] flex">
+    <div className="min-h-screen bg-[#05070B] text-slate-100 flex relative overflow-x-hidden selection:bg-emerald-500 selection:text-black">
+      {/* Subtle Ambient Glow Background Orbs */}
+      <div className="fixed top-0 right-1/4 w-96 h-96 bg-emerald-500/5 rounded-full blur-3xl pointer-events-none -z-10" />
+      <div className="fixed bottom-0 left-1/3 w-80 h-80 bg-teal-500/5 rounded-full blur-3xl pointer-events-none -z-10" />
+
       {/* Sidebar */}
       <Sidebar
         activeTab={activeTab}

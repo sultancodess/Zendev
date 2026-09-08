@@ -10,7 +10,9 @@ import {
   AlertCircle,
   Clock,
   CheckCircle2,
-  RefreshCw
+  RefreshCw,
+  Radio,
+  Zap
 } from 'lucide-react';
 import { api } from '../services/api.js';
 
@@ -95,24 +97,24 @@ export function Conversations() {
   const handoffs = activeConvData?.handoffs || [];
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col h-[calc(100vh-8.5rem)] min-h-[500px]">
+    <div className="bg-[#0A0F18] rounded-2xl border border-zinc-800/90 shadow-[0_4px_25px_rgba(0,0,0,0.6)] overflow-hidden flex flex-col h-[calc(100vh-8.5rem)] min-h-[520px]">
       <div className="grid grid-cols-1 md:grid-cols-12 h-full">
         {/* Left Column: Conversation List */}
-        <div className="md:col-span-4 border-r border-slate-200 flex flex-col h-full bg-slate-50/50">
-          <div className="p-3.5 border-b border-slate-200 flex items-center justify-between">
-            <h3 className="font-bold text-sm text-slate-800 flex items-center gap-2">
-              <MessageSquare className="w-4 h-4 text-brand-600" />
-              <span>Patient Enquiries</span>
+        <div className="md:col-span-4 border-r border-zinc-800/80 flex flex-col h-full bg-[#070b12]">
+          <div className="p-3.5 border-b border-zinc-800/80 flex items-center justify-between bg-black/30">
+            <h3 className="font-bold text-xs text-white flex items-center gap-2">
+              <MessageSquare className="w-4 h-4 text-emerald-400" />
+              <span>EvilChat Patient Inbox</span>
             </h3>
             <button
               onClick={loadConversations}
-              className="p-1 rounded-md text-slate-400 hover:text-slate-700 hover:bg-slate-200 transition-colors"
+              className="p-1.5 rounded-lg text-slate-400 hover:text-emerald-400 hover:bg-zinc-800 transition-colors"
             >
               <RefreshCw className="w-3.5 h-3.5" />
             </button>
           </div>
 
-          <div className="flex-1 overflow-y-auto divide-y divide-slate-100">
+          <div className="flex-1 overflow-y-auto divide-y divide-zinc-850">
             {conversations.map((item) => {
               const isSelected = item.id === selectedId;
               const isPaused = item.ai_status === 'PAUSED';
@@ -120,33 +122,35 @@ export function Conversations() {
                 <div
                   key={item.id}
                   onClick={() => setSelectedId(item.id)}
-                  className={`p-3.5 cursor-pointer transition-colors ${
-                    isSelected ? 'bg-brand-50/70 border-l-4 border-brand-600' : 'hover:bg-slate-100/60'
+                  className={`p-3.5 cursor-pointer transition-all ${
+                    isSelected
+                      ? 'bg-emerald-950/40 border-l-4 border-emerald-500 shadow-[inset_0_0_15px_rgba(34,197,94,0.08)]'
+                      : 'hover:bg-zinc-900/60'
                   }`}
                 >
                   <div className="flex items-center justify-between mb-1">
-                    <span className="font-semibold text-xs text-slate-900 truncate">
+                    <span className="font-bold text-xs text-white truncate">
                       {item.patient_name || item.patient_phone}
                     </span>
-                    <span className="text-[10px] text-slate-400">
+                    <span className="text-[10px] text-slate-500 font-mono">
                       {new Date(item.updated_at || item.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </span>
                   </div>
 
-                  <p className="text-xs text-slate-500 truncate mb-1.5">{item.last_message || 'No messages'}</p>
+                  <p className="text-xs text-slate-400 truncate mb-2">{item.last_message || 'No messages'}</p>
 
                   <div className="flex items-center gap-1.5 flex-wrap">
                     <span
-                      className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full ${
+                      className={`text-[9px] font-bold px-2 py-0.5 rounded-full ${
                         isPaused
-                          ? 'bg-rose-100 text-rose-700 border border-rose-200'
-                          : 'bg-emerald-100 text-emerald-700 border border-emerald-200'
+                          ? 'bg-rose-500/20 text-rose-300 border border-rose-500/40'
+                          : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
                       }`}
                     >
                       {isPaused ? '🔴 Human Active' : '🟢 AI Active'}
                     </span>
                     {item.last_intent && (
-                      <span className="text-[9px] font-medium px-1.5 py-0.5 rounded bg-slate-100 text-slate-600">
+                      <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded bg-zinc-800 text-slate-300 border border-zinc-700">
                         {item.last_intent}
                       </span>
                     )}
@@ -160,18 +164,18 @@ export function Conversations() {
         {/* Right Column: Chat & Patient Context */}
         <div className="md:col-span-8 flex flex-col lg:flex-row h-full">
           {/* Middle: Chat Messages */}
-          <div className="flex-1 flex flex-col h-full border-r border-slate-200">
+          <div className="flex-1 flex flex-col h-full border-r border-zinc-800/80">
             {conv ? (
               <>
                 {/* Chat Top Bar */}
-                <div className="p-3.5 border-b border-slate-200 bg-white flex items-center justify-between">
+                <div className="p-3.5 border-b border-zinc-800/80 bg-[#070b12] flex items-center justify-between">
                   <div className="flex items-center gap-2.5">
-                    <div className="w-9 h-9 rounded-full bg-brand-100 text-brand-700 font-bold text-xs flex items-center justify-center">
+                    <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-emerald-600 to-emerald-400 text-black font-extrabold text-xs flex items-center justify-center shadow-[0_0_10px_rgba(34,197,94,0.3)]">
                       {conv.patient_name?.charAt(0) || 'P'}
                     </div>
                     <div>
-                      <h4 className="font-bold text-xs text-slate-900 leading-tight">{conv.patient_name}</h4>
-                      <p className="text-[11px] text-slate-400">{conv.patient_phone}</p>
+                      <h4 className="font-bold text-xs text-white leading-tight">{conv.patient_name}</h4>
+                      <p className="text-[11px] text-emerald-400/80 font-mono">{conv.patient_phone}</p>
                     </div>
                   </div>
 
@@ -180,7 +184,7 @@ export function Conversations() {
                     {conv.ai_status === 'ACTIVE' ? (
                       <button
                         onClick={handleTakeover}
-                        className="px-3 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs shadow-sm transition-all flex items-center gap-1.5"
+                        className="px-3 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs shadow-[0_0_12px_rgba(225,29,72,0.3)] transition-all flex items-center gap-1.5"
                       >
                         <UserCheck className="w-3.5 h-3.5" />
                         <span>Take Over (Pause AI)</span>
@@ -188,17 +192,17 @@ export function Conversations() {
                     ) : (
                       <button
                         onClick={handleRelease}
-                        className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm transition-all flex items-center gap-1.5"
+                        className="px-3 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-extrabold text-xs shadow-[0_0_12px_rgba(34,197,94,0.3)] transition-all flex items-center gap-1.5"
                       >
                         <Sparkles className="w-3.5 h-3.5" />
-                        <span>Return to AI</span>
+                        <span>Return to EvilChat AI</span>
                       </button>
                     )}
                   </div>
                 </div>
 
                 {/* Messages Feed */}
-                <div className="flex-1 p-4 overflow-y-auto space-y-3 chat-bg">
+                <div className="flex-1 p-4 overflow-y-auto space-y-3 chat-dark-bg">
                   {messages.map((m, idx) => {
                     const isCustomer = m.sender === 'CUSTOMER';
                     const isAI = m.sender === 'AI';
@@ -208,27 +212,27 @@ export function Conversations() {
                         className={`flex flex-col ${isCustomer ? 'items-start' : 'items-end'}`}
                       >
                         <div
-                          className={`max-w-[80%] rounded-2xl px-3.5 py-2.5 shadow-sm text-xs ${
+                          className={`max-w-[80%] rounded-2xl px-3.5 py-2.5 shadow-md text-xs ${
                             isCustomer
-                              ? 'bg-white text-slate-800 rounded-tl-none border border-slate-200'
+                              ? 'bg-[#18222d] text-slate-100 rounded-tl-none border border-zinc-700/80'
                               : isAI
-                              ? 'bg-emerald-50 text-slate-800 rounded-tr-none border border-emerald-200'
-                              : 'bg-brand-600 text-white rounded-tr-none'
+                              ? 'bg-[#004d40]/90 text-emerald-100 rounded-tr-none border border-emerald-500/40 shadow-[0_0_15px_rgba(0,121,107,0.2)]'
+                              : 'bg-emerald-500 text-black font-medium rounded-tr-none shadow-[0_0_12px_rgba(34,197,94,0.3)]'
                           }`}
                         >
-                          <div className="flex items-center gap-1.5 mb-1 opacity-75 text-[10px] font-semibold">
+                          <div className="flex items-center gap-1.5 mb-1 opacity-85 text-[10px] font-bold">
                             {isCustomer ? (
-                              <span>{conv.patient_name}</span>
+                              <span className="text-slate-300">{conv.patient_name}</span>
                             ) : isAI ? (
-                              <span className="flex items-center gap-1 text-emerald-800">
-                                <Sparkles className="w-3 h-3" /> AI Assistant
+                              <span className="flex items-center gap-1 text-emerald-300">
+                                <Sparkles className="w-3 h-3" /> EvilChat Assistant
                               </span>
                             ) : (
-                              <span>Receptionist ({m.sender_name || 'Staff'})</span>
+                              <span className="text-black font-bold">Receptionist ({m.sender_name || 'Staff'})</span>
                             )}
                           </div>
                           <p className="whitespace-pre-line leading-relaxed">{m.text}</p>
-                          <span className="block text-[9px] text-right mt-1 opacity-60">
+                          <span className="block text-[9px] text-right mt-1 opacity-60 font-mono">
                             {new Date(m.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                           </span>
                         </div>
@@ -238,18 +242,22 @@ export function Conversations() {
                 </div>
 
                 {/* Reply Bar */}
-                <form onSubmit={handleSendReply} className="p-3 border-t border-slate-200 bg-white flex items-center gap-2">
+                <form onSubmit={handleSendReply} className="p-3 border-t border-zinc-800/80 bg-[#070b12] flex items-center gap-2">
                   <input
                     type="text"
                     value={replyText}
                     onChange={(e) => setReplyText(e.target.value)}
-                    placeholder={conv.ai_status === 'ACTIVE' ? 'AI is replying automatically (or type to send manual staff message)...' : 'Type WhatsApp message to patient...'}
-                    className="flex-1 px-3.5 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500 bg-slate-50"
+                    placeholder={
+                      conv.ai_status === 'ACTIVE'
+                        ? 'EvilChat AI is replying automatically (or type to send manual staff message)...'
+                        : 'Type message to patient on WhatsApp...'
+                    }
+                    className="flex-1 px-3.5 py-2 text-xs rounded-xl border border-zinc-700 bg-zinc-900 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                   />
                   <button
                     type="submit"
                     disabled={!replyText.trim() || sending}
-                    className="px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-700 disabled:opacity-50 text-white font-bold text-xs flex items-center gap-1.5 shadow-sm transition-all"
+                    className="px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 text-black font-extrabold text-xs flex items-center gap-1.5 shadow-[0_0_12px_rgba(34,197,94,0.3)] transition-all"
                   >
                     <Send className="w-3.5 h-3.5" />
                     <span>Send</span>
@@ -257,7 +265,7 @@ export function Conversations() {
                 </form>
               </>
             ) : (
-              <div className="flex-1 flex items-center justify-center text-slate-400 text-xs">
+              <div className="flex-1 flex items-center justify-center text-slate-500 text-xs">
                 Select a conversation to inspect messages
               </div>
             )}
@@ -265,36 +273,36 @@ export function Conversations() {
 
           {/* Context Sidebar */}
           {conv && (
-            <div className="w-full lg:w-72 bg-slate-50/70 p-4 border-t lg:border-t-0 border-slate-200 overflow-y-auto space-y-4">
+            <div className="w-full lg:w-72 bg-[#070b12] p-4 border-t lg:border-t-0 border-zinc-800/80 overflow-y-auto space-y-4">
               <div>
-                <h5 className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">Patient Profile</h5>
-                <div className="bg-white p-3 rounded-xl border border-slate-200 text-xs space-y-1.5">
+                <h5 className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider mb-2">Patient Profile</h5>
+                <div className="bg-zinc-900/90 p-3 rounded-xl border border-zinc-800 text-xs space-y-2">
                   <div className="flex justify-between">
                     <span className="text-slate-400">Name</span>
-                    <span className="font-semibold text-slate-800">{conv.patient_name}</span>
+                    <span className="font-bold text-white">{conv.patient_name}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-slate-400">Phone</span>
-                    <span className="font-mono text-slate-800">{conv.patient_phone}</span>
+                    <span className="font-mono text-emerald-400">{conv.patient_phone}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-slate-400">AI State</span>
-                    <span className="font-semibold text-brand-600">{conv.stage}</span>
+                    <span className="font-semibold text-emerald-400">{conv.stage}</span>
                   </div>
                 </div>
               </div>
 
               {lead && (
                 <div>
-                  <h5 className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">Lead Details</h5>
-                  <div className="bg-white p-3 rounded-xl border border-slate-200 text-xs space-y-1.5">
+                  <h5 className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider mb-2">Lead Details</h5>
+                  <div className="bg-zinc-900/90 p-3 rounded-xl border border-zinc-800 text-xs space-y-2">
                     <div className="flex justify-between">
                       <span className="text-slate-400">Service</span>
-                      <span className="font-semibold text-slate-800">{lead.service}</span>
+                      <span className="font-bold text-white">{lead.service}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-slate-400">Status</span>
-                      <span className="px-1.5 py-0.5 rounded bg-brand-50 text-brand-700 font-bold text-[10px]">
+                      <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-bold text-[10px] border border-emerald-500/30">
                         {lead.status}
                       </span>
                     </div>
@@ -304,15 +312,15 @@ export function Conversations() {
 
               {appointments.length > 0 && (
                 <div>
-                  <h5 className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">Appointments</h5>
+                  <h5 className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider mb-2">Appointments</h5>
                   <div className="space-y-2">
                     {appointments.map((a) => (
-                      <div key={a.id} className="bg-white p-3 rounded-xl border border-slate-200 text-xs space-y-1">
-                        <div className="flex items-center justify-between font-semibold text-slate-800">
+                      <div key={a.id} className="bg-zinc-900/90 p-3 rounded-xl border border-zinc-800 text-xs space-y-1">
+                        <div className="flex items-center justify-between font-bold text-white">
                           <span>{a.service_name}</span>
-                          <span className="text-[10px] text-emerald-600">{a.status}</span>
+                          <span className="text-[10px] text-emerald-400">{a.status}</span>
                         </div>
-                        <p className="text-[11px] text-slate-500">
+                        <p className="text-[11px] text-slate-400">
                           {a.date} at {a.time} ({a.doctor_name})
                         </p>
                       </div>
@@ -323,12 +331,12 @@ export function Conversations() {
 
               {handoffs.length > 0 && (
                 <div>
-                  <h5 className="text-[11px] font-bold text-rose-500 uppercase tracking-wider mb-2">Handoff Alerts</h5>
+                  <h5 className="text-[10px] font-extrabold text-rose-400 uppercase tracking-wider mb-2">Handoff Alerts</h5>
                   <div className="space-y-2">
                     {handoffs.map((h) => (
-                      <div key={h.id} className="bg-rose-50 p-3 rounded-xl border border-rose-200 text-xs space-y-1">
-                        <span className="font-bold text-rose-700 text-[10px] uppercase">Reason</span>
-                        <p className="text-rose-800 text-xs leading-relaxed">{h.reason}</p>
+                      <div key={h.id} className="bg-rose-950/40 p-3 rounded-xl border border-rose-500/40 text-xs space-y-1">
+                        <span className="font-bold text-rose-300 text-[10px] uppercase">Reason</span>
+                        <p className="text-rose-200 text-xs leading-relaxed">{h.reason}</p>
                       </div>
                     ))}
                   </div>

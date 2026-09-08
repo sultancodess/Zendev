@@ -96,20 +96,20 @@ export function Doctors() {
   return (
     <div className="space-y-5">
       {/* Header */}
-      <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-[#0A0F18] p-5 rounded-2xl border border-zinc-800/90 shadow-[0_4px_20px_rgba(0,0,0,0.5)] flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-xl bg-brand-50 text-brand-700">
+          <div className="p-2.5 rounded-xl bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
             <UserCheck className="w-5 h-5" />
           </div>
           <div>
-            <h3 className="font-bold text-base text-slate-800">Doctors & Clinical Schedules</h3>
-            <p className="text-xs text-slate-500">Working hours, consultation durations, and appointment availability</p>
+            <h3 className="font-bold text-base text-white">Doctors & Clinical Schedules</h3>
+            <p className="text-xs text-slate-400">Working hours, consultation durations, and appointment availability</p>
           </div>
         </div>
 
         <button
           onClick={() => handleOpenModal()}
-          className="px-3.5 py-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs flex items-center gap-1.5 shadow-md shadow-brand-600/20 transition-all self-start md:self-auto"
+          className="px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-extrabold text-xs flex items-center gap-1.5 shadow-[0_0_15px_rgba(34,197,94,0.3)] transition-all self-start md:self-auto"
         >
           <Plus className="w-4 h-4" />
           <span>Add Doctor</span>
@@ -121,51 +121,51 @@ export function Doctors() {
         {doctors.map((doc) => (
           <div
             key={doc.id}
-            className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm hover:shadow-md transition-all flex flex-col justify-between space-y-4"
+            className="bg-[#0A0F18] rounded-2xl p-5 border border-zinc-800/90 shadow-md hover:border-emerald-500/40 transition-all flex flex-col justify-between space-y-4"
           >
             <div>
               <div className="flex items-start justify-between">
                 <div>
-                  <h4 className="font-extrabold text-base text-slate-900">{doc.name}</h4>
-                  <p className="text-xs font-semibold text-brand-600">{doc.specialty}</p>
+                  <h4 className="font-extrabold text-base text-white">{doc.name}</h4>
+                  <p className="text-xs font-semibold text-emerald-400">{doc.specialty}</p>
                 </div>
-                <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
                   Active Specialist
                 </span>
               </div>
 
-              <div className="mt-3 space-y-1 text-xs text-slate-600">
-                <p>🎓 <strong>Qualifications:</strong> {doc.qualification}</p>
+              <div className="mt-3 space-y-1 text-xs text-slate-300">
+                <p>🎓 <strong className="text-white">Qualifications:</strong> {doc.qualification}</p>
                 {doc.registration_no && (
-                  <p>📜 <strong>Medical Council Reg:</strong> {doc.registration_no}</p>
+                  <p>📜 <strong className="text-white">Medical Council Reg:</strong> {doc.registration_no}</p>
                 )}
-                <p>💰 <strong>Consultation Fee:</strong> ₹{doc.fee || 800}</p>
+                <p>💰 <strong className="text-white">Consultation Fee:</strong> <span className="text-emerald-400 font-bold">₹{doc.fee || 800}</span></p>
               </div>
 
-              <div className="mt-3 bg-slate-50 p-3 rounded-xl border border-slate-100 text-xs space-y-1.5">
-                <div className="flex items-center gap-2 font-medium text-slate-700">
-                  <Clock className="w-3.5 h-3.5 text-slate-400" />
+              <div className="mt-3 bg-zinc-900/90 p-3 rounded-xl border border-zinc-800 text-xs space-y-1.5">
+                <div className="flex items-center gap-2 font-medium text-slate-200">
+                  <Clock className="w-3.5 h-3.5 text-emerald-400" />
                   <span>Timings: {doc.working_start_time} - {doc.working_end_time} (Break: {doc.break_start_time} - {doc.break_end_time})</span>
                 </div>
-                <div className="flex items-center gap-2 text-slate-600">
-                  <Calendar className="w-3.5 h-3.5 text-slate-400" />
+                <div className="flex items-center gap-2 text-slate-400">
+                  <Calendar className="w-3.5 h-3.5 text-slate-500" />
                   <span>Days: {doc.available_days?.join(', ')}</span>
                 </div>
               </div>
             </div>
 
-            <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
-              <span className="text-slate-400">Slot Duration: {doc.consultation_duration} mins</span>
+            <div className="pt-3 border-t border-zinc-800 flex items-center justify-between text-xs">
+              <span className="text-slate-500">Slot Duration: {doc.consultation_duration} mins</span>
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => handleOpenModal(doc)}
-                  className="p-1.5 rounded-lg text-slate-400 hover:text-brand-600 hover:bg-brand-50 transition-colors"
+                  className="p-1.5 rounded-lg text-slate-400 hover:text-emerald-400 hover:bg-zinc-800 transition-colors"
                 >
                   <Edit2 className="w-3.5 h-3.5" />
                 </button>
                 <button
                   onClick={() => handleDelete(doc.id)}
-                  className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors"
+                  className="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 transition-colors"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
                 </button>
@@ -177,91 +177,91 @@ export function Doctors() {
 
       {/* Doctor Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200">
-            <div className="flex items-center justify-between mb-4">
-              <h4 className="font-bold text-base text-slate-800">
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="bg-[#0A0F18] rounded-2xl max-w-md w-full p-6 shadow-2xl border border-emerald-500/30">
+            <div className="flex items-center justify-between mb-4 pb-3 border-b border-zinc-800">
+              <h4 className="font-bold text-base text-white">
                 {editingDoc ? 'Edit Doctor Profile' : 'Add New Doctor'}
               </h4>
-              <button onClick={() => setShowModal(false)} className="text-slate-400 hover:text-slate-700">
+              <button onClick={() => setShowModal(false)} className="text-slate-400 hover:text-white">
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-3.5">
               <div>
-                <label className="block text-xs font-semibold text-slate-600 mb-1">Doctor Name</label>
+                <label className="block text-xs font-semibold text-slate-300 mb-1">Doctor Name</label>
                 <input
                   type="text"
                   required
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   placeholder="e.g. Dr. Ananya Sharma"
-                  className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-500"
+                  className="w-full px-3.5 py-2 text-xs rounded-xl border border-zinc-800 bg-zinc-900 text-white focus:ring-2 focus:ring-emerald-500"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-600 mb-1">Specialty</label>
+                <label className="block text-xs font-semibold text-slate-300 mb-1">Specialty</label>
                 <input
                   type="text"
                   required
                   value={formData.specialty}
                   onChange={(e) => setFormData({ ...formData, specialty: e.target.value })}
                   placeholder="Clinical Dermatology & Aesthetics"
-                  className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-200"
+                  className="w-full px-3.5 py-2 text-xs rounded-xl border border-zinc-800 bg-zinc-900 text-white"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-600 mb-1">Qualifications</label>
+                <label className="block text-xs font-semibold text-slate-300 mb-1">Qualifications</label>
                 <input
                   type="text"
                   value={formData.qualification}
                   onChange={(e) => setFormData({ ...formData, qualification: e.target.value })}
                   placeholder="MBBS, MD (Dermatology)"
-                  className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-200"
+                  className="w-full px-3.5 py-2 text-xs rounded-xl border border-zinc-800 bg-zinc-900 text-white"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-600 mb-1">Shift Start</label>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1">Shift Start</label>
                   <input
                     type="time"
                     value={formData.working_start_time}
                     onChange={(e) => setFormData({ ...formData, working_start_time: e.target.value })}
-                    className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-200"
+                    className="w-full px-3.5 py-2 text-xs rounded-xl border border-zinc-800 bg-zinc-900 text-white"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-600 mb-1">Shift End</label>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1">Shift End</label>
                   <input
                     type="time"
                     value={formData.working_end_time}
                     onChange={(e) => setFormData({ ...formData, working_end_time: e.target.value })}
-                    className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-200"
+                    className="w-full px-3.5 py-2 text-xs rounded-xl border border-zinc-800 bg-zinc-900 text-white"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-600 mb-1">Break Start</label>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1">Break Start</label>
                   <input
                     type="time"
                     value={formData.break_start_time}
                     onChange={(e) => setFormData({ ...formData, break_start_time: e.target.value })}
-                    className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-200"
+                    className="w-full px-3.5 py-2 text-xs rounded-xl border border-zinc-800 bg-zinc-900 text-white"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-600 mb-1">Break End</label>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1">Break End</label>
                   <input
                     type="time"
                     value={formData.break_end_time}
                     onChange={(e) => setFormData({ ...formData, break_end_time: e.target.value })}
-                    className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-200"
+                    className="w-full px-3.5 py-2 text-xs rounded-xl border border-zinc-800 bg-zinc-900 text-white"
                   />
                 </div>
               </div>
@@ -270,13 +270,13 @@ export function Doctors() {
                 <button
                   type="button"
                   onClick={() => setShowModal(false)}
-                  className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100"
+                  className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white hover:bg-zinc-800"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-xs font-bold shadow-md shadow-brand-600/20"
+                  className="px-5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-extrabold shadow-[0_0_15px_rgba(34,197,94,0.3)]"
                 >
                   Save Doctor Profile
                 </button>

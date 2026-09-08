@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" fill="none">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0a0f18" />
+      <stop offset="100%" stop-color="#04060a" />
+    </linearGradient>
+    <filter id="neonGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="3" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Outer Rounded Dark Container -->
+  <rect width="128" height="128" rx="28" fill="url(#bgGrad)" stroke="#1a2e22" stroke-width="2" />
+  
+  <!-- Outer glowing green C/ear contour -->
+  <path
+    d="M64 22 C40.8 22 22 40.8 22 64 C22 87.2 40.8 106 64 106 C80.6 106 95.2 96.4 102 82.5 C104.8 76.8 101.5 70.2 95.5 68.8 C89.8 67.5 84.8 71.5 83 75.8 C79.2 84.8 69.8 89.5 59.8 87.2 C48.5 84.6 40.5 74.8 40.5 63.5 C40.5 51.5 49.5 41.5 61.5 41.5 C70.2 41.5 77.8 46.5 81.2 54.2 C83.5 59.5 89.2 62.5 94.8 60.5 C100.8 58.4 103.5 51.5 100.5 45.8 C93.2 31.8 79.5 22 64 22 Z"
+    fill="#22c55e"
+    filter="url(#neonGlow)"
+  />
+  
+  <!-- Outer Smooth Outline Ring (Clean C-Curve Contour) -->
+  <path
+    d="M72 26 C46 26 26 44 26 64 C26 84 45 102 68 102 C86 102 100 89 100 75 C100 68 94 64 88 66 C82 68 78 74 74 78 C70 82 64 84 58 83 C47 81 39 71 40 60 C41 49 50 40 61 40 C70 40 78 45 81 52 C84 58 91 60 96 57 C101 54 102 47 98 42 C92 32 83 26 72 26 Z"
+    fill="#4ade80"
+  />
+
+  <!-- Central Solid Dot -->
+  <circle cx="64" cy="64" r="10" fill="#22c55e" filter="url(#neonGlow)" />
+  <circle cx="64" cy="64" r="8" fill="#4ade80" />
+</svg>

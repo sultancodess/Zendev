@@ -28,15 +28,15 @@ export function Analytics() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+      <div className="bg-[#0A0F18] p-5 rounded-2xl border border-zinc-800/90 shadow-[0_4px_20px_rgba(0,0,0,0.5)] flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-xl bg-brand-50 text-brand-700">
+          <div className="p-2.5 rounded-xl bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
             <BarChart3 className="w-5 h-5" />
           </div>
           <div>
-            <h3 className="font-bold text-base text-slate-800">Clinic Analytics & Performance Metrics</h3>
-            <p className="text-xs text-slate-500">
-              PRD standard conversion rates and attribution tracking
+            <h3 className="font-bold text-base text-white">Clinic Analytics & Performance Metrics</h3>
+            <p className="text-xs text-slate-400">
+              EvilChat standard conversion rates and attribution tracking
             </p>
           </div>
         </div>
@@ -44,46 +44,46 @@ export function Analytics() {
 
       {/* KPI Rate Formula Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-2">
-          <span className="text-xs font-semibold text-slate-500 uppercase">Qualification Rate</span>
-          <div className="text-3xl font-extrabold text-teal-600">{rates.qualificationRate || '0.0%'}</div>
-          <p className="text-[11px] text-slate-400">Qualified Leads / Total Inquiries</p>
+        <div className="bg-[#0A0F18] p-5 rounded-2xl border border-zinc-800/90 shadow-md space-y-2">
+          <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Qualification Rate</span>
+          <div className="text-3xl font-extrabold text-teal-400">{rates.qualificationRate || '0.0%'}</div>
+          <p className="text-[11px] text-slate-500">Qualified Leads / Total Inquiries</p>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-2">
-          <span className="text-xs font-semibold text-slate-500 uppercase">Booking Rate</span>
-          <div className="text-3xl font-extrabold text-brand-600">{rates.bookingRate || '0.0%'}</div>
-          <p className="text-[11px] text-slate-400">Booked Appointments / Total Leads</p>
+        <div className="bg-[#0A0F18] p-5 rounded-2xl border border-zinc-800/90 shadow-md space-y-2">
+          <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Booking Rate</span>
+          <div className="text-3xl font-extrabold text-emerald-400">{rates.bookingRate || '0.0%'}</div>
+          <p className="text-[11px] text-slate-500">Booked Appointments / Total Leads</p>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-2">
-          <span className="text-xs font-semibold text-slate-500 uppercase">Completion Rate</span>
-          <div className="text-3xl font-extrabold text-emerald-600">{rates.completionRate || '0.0%'}</div>
-          <p className="text-[11px] text-slate-400">Completed / Total Booked</p>
+        <div className="bg-[#0A0F18] p-5 rounded-2xl border border-zinc-800/90 shadow-md space-y-2">
+          <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Completion Rate</span>
+          <div className="text-3xl font-extrabold text-lime-400">{rates.completionRate || '0.0%'}</div>
+          <p className="text-[11px] text-slate-500">Completed / Total Booked</p>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-2">
-          <span className="text-xs font-semibold text-slate-500 uppercase">No-Show Rate</span>
-          <div className="text-3xl font-extrabold text-amber-600">{rates.noShowRate || '0.0%'}</div>
-          <p className="text-[11px] text-slate-400">No-Shows / Total Booked</p>
+        <div className="bg-[#0A0F18] p-5 rounded-2xl border border-zinc-800/90 shadow-md space-y-2">
+          <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">No-Show Rate</span>
+          <div className="text-3xl font-extrabold text-amber-400">{rates.noShowRate || '0.0%'}</div>
+          <p className="text-[11px] text-slate-500">No-Shows / Total Booked</p>
         </div>
       </div>
 
       {/* Breakdowns Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Source Attribution */}
-        <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-          <h4 className="font-bold text-sm text-slate-800 mb-4">Lead Source Attribution</h4>
+        <div className="bg-[#0A0F18] p-6 rounded-2xl border border-zinc-800/90 shadow-md">
+          <h4 className="font-bold text-sm text-white mb-4">Lead Source Attribution</h4>
           <div className="space-y-3">
             {sourceBreakdown.map((item, idx) => (
               <div key={idx}>
-                <div className="flex justify-between text-xs font-semibold text-slate-700 mb-1">
+                <div className="flex justify-between text-xs font-semibold text-slate-300 mb-1">
                   <span>{item.name}</span>
-                  <span>{item.count} leads</span>
+                  <span className="text-emerald-400 font-mono">{item.count} leads</span>
                 </div>
-                <div className="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden">
+                <div className="w-full bg-zinc-900 rounded-full h-2.5 overflow-hidden border border-zinc-800">
                   <div
-                    className="bg-brand-600 h-full rounded-full"
+                    className="bg-gradient-to-r from-emerald-600 to-emerald-400 h-full rounded-full shadow-[0_0_10px_rgba(34,197,94,0.3)]"
                     style={{ width: `${Math.min(100, item.count * 20)}%` }}
                   />
                 </div>
@@ -93,18 +93,18 @@ export function Analytics() {
         </div>
 
         {/* Service Popularity */}
-        <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-          <h4 className="font-bold text-sm text-slate-800 mb-4">Treatment Demand Distribution</h4>
+        <div className="bg-[#0A0F18] p-6 rounded-2xl border border-zinc-800/90 shadow-md">
+          <h4 className="font-bold text-sm text-white mb-4">Treatment Demand Distribution</h4>
           <div className="space-y-3">
             {serviceBreakdown.map((item, idx) => (
               <div key={idx}>
-                <div className="flex justify-between text-xs font-semibold text-slate-700 mb-1">
+                <div className="flex justify-between text-xs font-semibold text-slate-300 mb-1">
                   <span className="truncate pr-2">{item.name}</span>
-                  <span className="shrink-0">{item.count} enquiries</span>
+                  <span className="shrink-0 text-teal-400 font-mono">{item.count} enquiries</span>
                 </div>
-                <div className="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden">
+                <div className="w-full bg-zinc-900 rounded-full h-2.5 overflow-hidden border border-zinc-800">
                   <div
-                    className="bg-teal-500 h-full rounded-full"
+                    className="bg-gradient-to-r from-teal-500 to-emerald-400 h-full rounded-full shadow-[0_0_10px_rgba(20,184,166,0.3)]"
                     style={{ width: `${Math.min(100, item.count * 25)}%` }}
                   />
                 </div>
