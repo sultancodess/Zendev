@@ -1,324 +1,305 @@
 import React, { useState, useEffect } from 'react';
 import {
-  MessageSquare,
-  Users,
-  CalendarCheck,
-  AlertCircle,
-  TrendingUp,
-  UserX,
-  ArrowUpRight,
-  Zap,
-  Activity,
-  ArrowRight,
+  MessageSquare, Users, CalendarCheck, AlertCircle,
+  TrendingUp, UserX, ArrowRight, RefreshCw,
 } from 'lucide-react';
 import { api } from '../services/api.js';
 
-const STAT_CARDS = (overview, rates) => [
-  {
-    title:   "Today's Enquiries",
-    value:   overview.totalEnquiries,
-    sub:     'WhatsApp Inbound',
-    icon:    MessageSquare,
-    accent:  '#22c55e',
-    glow:    'rgba(34,197,94,0.25)',
-    nav:     'conversations',
-    trend:   '+12%',
-  },
-  {
-    title:   'Qualified Leads',
-    value:   overview.qualifiedLeads,
-    sub:     `Rate: ${rates.qualificationRate}`,
-    icon:    Users,
-    accent:  '#14b8a6',
-    glow:    'rgba(20,184,166,0.25)',
-    nav:     'leads',
-    trend:   '+8%',
-  },
-  {
-    title:   'Booked Appointments',
-    value:   overview.totalBookedAppointments,
-    sub:     `Booking: ${rates.bookingRate}`,
-    icon:    CalendarCheck,
-    accent:  '#a78bfa',
-    glow:    'rgba(167,139,250,0.25)',
-    nav:     'appointments',
-    trend:   '+5%',
-  },
-  {
-    title:   'Human Handoffs',
-    value:   overview.pendingHandoffs,
-    sub:     'Awaiting staff',
-    icon:    AlertCircle,
-    accent:  '#f43f5e',
-    glow:    'rgba(244,63,94,0.25)',
-    nav:     'conversations',
-    alert:   overview.pendingHandoffs > 0,
-  },
-  {
-    title:   'Completed Consults',
-    value:   overview.completedAppointments,
-    sub:     `Completion: ${rates.completionRate}`,
-    icon:    TrendingUp,
-    accent:  '#22c55e',
-    glow:    'rgba(34,197,94,0.2)',
-    nav:     'appointments',
-    trend:   '+18%',
-  },
-  {
-    title:   'No-Shows',
-    value:   overview.noShowAppointments,
-    sub:     'Needs auto-reminder',
-    icon:    UserX,
-    accent:  '#f59e0b',
-    glow:    'rgba(245,158,11,0.25)',
-    nav:     'appointments',
-  },
+/* ── Tiny simple bar chart rendered with divs ── */
+function MiniBarChart({ data, color = '#111111' }) {
+  const max = Math.max(...data.map(d => d.v), 1);
+  return (
+    <div className="flex items-end gap-1 h-24">
+      {data.map((d, i) => (
+        <div key={i} className="flex flex-col items-center gap-1 flex-1">
+          <div
+            className="w-full rounded-t"
+            style={{
+              height: `${Math.max(4, (d.v / max) * 88)}px`,
+              background: d.highlight ? '#22c55e' : color,
+              borderRadius: '3px 3px 0 0',
+              transition: 'height 0.5s ease',
+            }}
+          />
+          {d.label && (
+            <span style={{ fontSize: 9, color: '#9ca3af', whiteSpace: 'nowrap' }}>{d.label}</span>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/* ── Mini sparkline using SVG ── */
+function Sparkline({ points, color = '#22c55e', height = 48 }) {
+  const w = 200, h = height;
+  const max = Math.max(...points, 1);
+  const min = Math.min(...points);
+  const range = max - min || 1;
+  const xs = points.map((_, i) => (i / (points.length - 1)) * w);
+  const ys = points.map(p => h - ((p - min) / range) * (h - 8) - 4);
+  const d = xs.map((x, i) => `${i === 0 ? 'M' : 'L'}${x},${ys[i]}`).join(' ');
+  return (
+    <svg viewBox={`0 0 ${w} ${h}`} className="w-full" style={{ height }}>
+      <path d={d} fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+const CHART_DATA = [
+  { v: 3,  label: '4am' },
+  { v: 7,  label: '6am' },
+  { v: 5,  label: '8am' },
+  { v: 4,  label: '10am' },
+  { v: 2,  label: '12pm' },
+  { v: 1,  label: '2am' },
+  { v: 2,  label: '4am' },
+  { v: 1,  label: '6am' },
+  { v: 8,  label: '8am', highlight: true },
+  { v: 12, label: '10am', highlight: true },
+  { v: 11, label: '12pm' },
+  { v: 6,  label: '2pm' },
 ];
 
-const FUNNEL_STEPS = (overview, rates) => [
-  { label: 'Inbound WhatsApp Enquiries', value: overview.totalEnquiries,           pct: '100%',                    color: '#22c55e' },
-  { label: 'Qualified Leads',            value: overview.qualifiedLeads,            pct: rates.qualificationRate,   color: '#14b8a6' },
-  { label: 'Confirmed Appointments',     value: overview.totalBookedAppointments,   pct: rates.bookingRate,         color: '#a78bfa' },
-  { label: 'Completed Treatments',       value: overview.completedAppointments,     pct: rates.completionRate,      color: '#4ade80' },
-];
+const SPARKLINE = [14, 18, 12, 22, 16, 20, 24, 19, 26, 22, 28, 24];
 
 export function Overview({ onNavigate }) {
   const [data,    setData]    = useState(null);
   const [loading, setLoading] = useState(true);
+  const [tab,     setTab]     = useState('24h');
 
   useEffect(() => {
     api.getAnalytics()
-      .then(res => setData(res))
+      .then(setData)
       .catch(console.error)
       .finally(() => setLoading(false));
   }, []);
 
-  const overview = data?.overview || {
-    totalEnquiries: 24, qualifiedLeads: 16, totalBookedAppointments: 10,
-    confirmedAppointments: 8, completedAppointments: 6, pendingHandoffs: 2, noShowAppointments: 1
-  };
-  const rates = data?.rates || {
-    qualificationRate: '66.7%', bookingRate: '41.7%', completionRate: '60.0%', conversionRate: '41.7%'
-  };
+  const ov    = data?.overview || { totalEnquiries: 24, qualifiedLeads: 16, totalBookedAppointments: 10, completedAppointments: 6, pendingHandoffs: 2, noShowAppointments: 1 };
+  const rates = data?.rates    || { qualificationRate: '66.7%', bookingRate: '41.7%', completionRate: '60.0%' };
 
-  const cards  = STAT_CARDS(overview, rates);
-  const funnel = FUNNEL_STEPS(overview, rates);
+  const STATS = [
+    { label: 'WHATSAPP ENQUIRIES',   value: ov.totalEnquiries,            sub: '100% committed <1s',          icon: MessageSquare },
+    { label: 'QUALIFICATION RATE',   value: rates.qualificationRate,      sub: 'Leads auto-triaged by AI',     icon: TrendingUp    },
+    { label: 'BOOKED APPOINTMENTS',  value: ov.totalBookedAppointments,   sub: 'Confirmed slots this period',  icon: CalendarCheck },
+    { label: 'HANDOFFS / PENDING',   value: `${ov.pendingHandoffs} / 1`,  sub: ov.pendingHandoffs > 0 ? '⚠ Waiting for staff' : 'All resolved', icon: AlertCircle, alert: ov.pendingHandoffs > 0 },
+  ];
 
   return (
-    <div className="space-y-6 page-enter">
+    <div className="space-y-5 page-enter">
 
-      {/* ── Hero Banner ── */}
-      <div className="relative overflow-hidden rounded-3xl border border-white/[0.06]"
-        style={{
-          background: 'linear-gradient(135deg, #060e18 0%, #0b1a2c 40%, #071018 100%)',
-          boxShadow: '0 0 60px rgba(34,197,94,0.08), 0 8px 32px rgba(0,0,0,0.5)',
-        }}
-      >
-        {/* BG accent orbs */}
-        <div className="absolute top-0 right-0 w-80 h-80 bg-emerald-500/8 rounded-full blur-3xl -translate-y-1/2 translate-x-1/4 pointer-events-none" />
-        <div className="absolute bottom-0 left-0 w-60 h-60 bg-teal-500/6 rounded-full blur-3xl translate-y-1/2 -translate-x-1/4 pointer-events-none" />
-        {/* Top hairline */}
-        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-emerald-500/50 to-transparent" />
-
-        <div className="relative z-10 p-6 flex flex-col md:flex-row md:items-center justify-between gap-5">
-          <div>
-            {/* Live badge */}
-            <div
-              className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-widest mb-4"
-              style={{ background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.25)', color: '#86efac', boxShadow: '0 0 12px rgba(34,197,94,0.12)' }}
-            >
-              <span className="relative flex h-1.5 w-1.5">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-400" />
-              </span>
-              Derma.ai · Autonomous Mode Active
-            </div>
-
-            <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight leading-tight">
-              WhatsApp Lead &{' '}
-              <span className="text-emerald-400" style={{ textShadow: '0 0 30px rgba(34,197,94,0.4)' }}>
-                Appointment
-              </span>{' '}
-              Automation
-            </h1>
-            <p className="mt-2 text-sm text-slate-400 max-w-xl leading-relaxed">
-              AI-powered patient triage, pricing FAQs, Google Doc sync, and real-time doctor booking.
-            </p>
-
-            {/* Quick stats row */}
-            <div className="flex items-center gap-5 mt-4 flex-wrap">
-              {[
-                { label: 'Enquiries Today', value: overview.totalEnquiries },
-                { label: 'Booking Rate',    value: rates.bookingRate },
-                { label: 'AI Uptime',       value: '99.9%' },
-              ].map(s => (
-                <div key={s.label} className="flex items-center gap-1.5">
-                  <span className="text-xl font-black text-white">{s.value}</span>
-                  <span className="text-[10px] text-slate-500 font-medium leading-tight">{s.label}</span>
-                </div>
-              ))}
-            </div>
-          </div>
+      {/* ── Page Title ── */}
+      <div className="flex items-start justify-between">
+        <div>
+          <h1 style={{ fontSize: 26, fontWeight: 800, color: '#111111', letterSpacing: '-0.02em', lineHeight: 1.2 }}>
+            Patient Overview
+          </h1>
+          <p style={{ fontSize: 13, color: '#6b7280', marginTop: 4 }}>
+            Real-time WhatsApp AI pipeline for{' '}
+            <strong style={{ color: '#111111' }}>DermaCare Skin & Laser Clinic</strong>
+          </p>
         </div>
+        <button
+          onClick={() => { setLoading(true); api.getAnalytics().then(setData).catch(console.error).finally(() => setLoading(false)); }}
+          className="btn-ghost"
+          style={{ fontSize: 12 }}
+        >
+          <RefreshCw style={{ width: 13, height: 13, animation: loading ? 'spin 1s linear infinite' : 'none' }} />
+          Refresh
+        </button>
       </div>
 
-      {/* ── Stat Cards ── */}
-      <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-        {cards.map((card, i) => {
-          const Icon = card.icon;
+      {/* ── 4 Stat Cards ── */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        {STATS.map((s, i) => {
+          const Icon = s.icon;
           return (
-            <button
-              key={i}
-              onClick={() => onNavigate(card.nav)}
-              className="stat-card glass-card glass-card-hover text-left p-4 sm:p-5 rounded-2xl group relative overflow-hidden"
-            >
-              {/* Accent corner glow */}
-              <div
-                className="absolute -top-8 -right-8 w-24 h-24 rounded-full blur-2xl opacity-30 group-hover:opacity-50 transition-opacity"
-                style={{ background: card.glow }}
-              />
-
-              {/* Top row */}
+            <div key={i} className="stat-card p-5">
               <div className="flex items-start justify-between mb-3">
-                <div
-                  className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
-                  style={{
-                    background: `linear-gradient(135deg, ${card.accent}20, ${card.accent}10)`,
-                    border: `1px solid ${card.accent}30`,
-                    boxShadow: `0 0 12px ${card.glow}`,
-                  }}
-                >
-                  <Icon className="w-4 h-4" style={{ color: card.accent }} />
-                </div>
-                {card.trend && (
-                  <span className="text-[9px] font-extrabold px-1.5 py-0.5 rounded-md text-emerald-400 bg-emerald-500/10 border border-emerald-500/20">
-                    {card.trend}
-                  </span>
-                )}
-                {card.alert && card.value > 0 && (
-                  <span className="text-[9px] font-extrabold px-1.5 py-0.5 rounded-md text-rose-400 bg-rose-500/10 border border-rose-500/20 animate-pulse">
-                    URGENT
-                  </span>
-                )}
-              </div>
-
-              {/* Value */}
-              <div className="metric-value text-3xl font-black tracking-tight leading-none mb-1">
-                {card.value}
-              </div>
-
-              {/* Label & sub */}
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-2">{card.title}</p>
-              <div className="flex items-center justify-between mt-1.5">
-                <span className="text-[10px] text-slate-500">{card.sub}</span>
-                <ArrowUpRight
-                  className="w-3 h-3 text-slate-600 group-hover:text-emerald-400 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all"
-                  style={{ color: card.accent + '80' }}
+                <span style={{ fontSize: 10, fontWeight: 700, color: '#9ca3af', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+                  {s.label}
+                </span>
+                <Icon
+                  style={{ width: 14, height: 14, color: s.alert ? '#ef4444' : '#d1d5db', flexShrink: 0 }}
                 />
               </div>
-            </button>
+              <div style={{ fontSize: 32, fontWeight: 800, color: s.alert ? '#ef4444' : '#111111', lineHeight: 1, letterSpacing: '-0.03em' }}>
+                {s.value}
+              </div>
+              <p style={{ fontSize: 11, color: '#9ca3af', marginTop: 6 }}>{s.sub}</p>
+            </div>
           );
         })}
       </div>
 
-      {/* ── Funnel + Action Center ── */}
+      {/* ── Chart Row ── */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
 
-        {/* Conversion Funnel */}
-        <div className="lg:col-span-2 glass-card rounded-2xl p-6">
-          <div className="flex items-center justify-between mb-5">
+        {/* Throughput Chart (2/3) */}
+        <div className="panel p-5 lg:col-span-2">
+          {/* Header */}
+          <div className="flex items-center justify-between mb-1">
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-emerald-500/15 border border-emerald-500/25 flex items-center justify-center">
-                <Activity className="w-4 h-4 text-emerald-400" />
+              <span style={{ fontSize: 14, fontWeight: 700, color: '#111111' }}>
+                WhatsApp Message Throughput
+              </span>
+              <span className="badge-green" style={{ fontSize: 9 }}>
+                {rates.bookingRate} booking rate
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              {/* Legend */}
+              <div className="hidden sm:flex items-center gap-3 mr-2">
+                {[
+                  { color: '#111111', label: 'Delivered' },
+                  { color: '#f59e0b', label: 'Pending' },
+                  { color: '#ef4444', label: 'Handoff' },
+                ].map(l => (
+                  <div key={l.label} className="flex items-center gap-1.5">
+                    <div className="w-2 h-2 rounded-full" style={{ background: l.color }} />
+                    <span style={{ fontSize: 11, color: '#9ca3af' }}>{l.label}</span>
+                  </div>
+                ))}
               </div>
-              <div>
-                <h3 className="font-bold text-sm text-white">Lead Conversion Funnel</h3>
-                <p className="text-[10px] text-slate-500">Real-time pipeline view</p>
+              {/* Time toggle */}
+              <div
+                className="flex items-center"
+                style={{ border: '1px solid #e5e7eb', borderRadius: 8, overflow: 'hidden' }}
+              >
+                {['24h', '7d'].map(t => (
+                  <button
+                    key={t}
+                    onClick={() => setTab(t)}
+                    style={{
+                      fontSize: 11, fontWeight: 600, padding: '4px 10px',
+                      background: tab === t ? '#111111' : 'transparent',
+                      color: tab === t ? '#ffffff' : '#9ca3af',
+                      border: 'none', cursor: 'pointer', transition: 'all 0.15s',
+                    }}
+                  >
+                    {t}
+                  </button>
+                ))}
               </div>
             </div>
-            <span
-            className="text-[9px] font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider"
-            style={{ background: 'rgba(34,197,94,0.12)', color: '#86efac', border: '1px solid rgba(34,197,94,0.25)' }}
-          >
-            Live
-          </span>
           </div>
 
-          <div className="space-y-5">
-            {funnel.map((step, i) => (
-              <div key={i}>
-                <div className="flex justify-between items-baseline mb-2">
-                  <div className="flex items-center gap-2">
-                    <span
-                      className="text-[10px] font-extrabold w-4 h-4 rounded-full flex items-center justify-center text-black"
-                      style={{ background: step.color }}
-                    >
-                      {i + 1}
-                    </span>
-                    <span className="text-xs font-semibold text-slate-300">{step.label}</span>
-                  </div>
-                  <span
-                    className="text-xs font-extrabold mono"
-                    style={{ color: step.color }}
-                  >
-                    {step.value} <span className="text-slate-500 font-medium">({step.pct})</span>
-                  </span>
-                </div>
-                <div className="h-2 rounded-full bg-dark-800 overflow-hidden border border-white/5">
-                  <div
-                    className="h-full rounded-full transition-all duration-1000"
-                    style={{
-                      width: step.pct,
-                      background: `linear-gradient(90deg, ${step.color}cc, ${step.color})`,
-                      boxShadow: `0 0 10px ${step.color}55`,
-                    }}
-                  />
-                </div>
+          {/* Sub-metrics row */}
+          <div className="flex items-center gap-6 mb-5 mt-2" style={{ borderBottom: '1px solid #f3f4f6', paddingBottom: 12 }}>
+            {[
+              { label: 'DELIVERED',   value: ov.totalEnquiries - ov.pendingHandoffs, color: '#111111' },
+              { label: 'RETRIES',     value: 0,                                       color: '#f59e0b' },
+              { label: 'HANDOFFS',    value: ov.pendingHandoffs,                      color: '#ef4444' },
+            ].map(m => (
+              <div key={m.label}>
+                <p style={{ fontSize: 9, fontWeight: 700, color: '#9ca3af', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 2 }}>
+                  {m.label}
+                </p>
+                <p style={{ fontSize: 22, fontWeight: 800, color: m.color, letterSpacing: '-0.02em' }}>
+                  {m.value}
+                </p>
               </div>
             ))}
           </div>
+
+          <MiniBarChart data={CHART_DATA} />
         </div>
 
-        {/* Action Center */}
-        <div className="glass-card rounded-2xl p-5 flex flex-col">
-          <div className="flex items-center gap-2.5 mb-4">
-            <div className="w-8 h-8 rounded-lg bg-emerald-500/15 border border-emerald-500/25 flex items-center justify-center">
-              <Zap className="w-4 h-4 text-emerald-400" />
-            </div>
-            <div>
-              <span className="font-bold text-sm text-white">AI Knowledge Sync</span>
-              <p className="text-[10px] text-slate-500">Quick controls</p>
-            </div>
+        {/* Metrics Panel (1/3) */}
+        <div className="panel p-5 flex flex-col">
+          <div className="mb-4">
+            <p style={{ fontSize: 14, fontWeight: 700, color: '#111111', marginBottom: 2 }}>
+              Conversion Funnel
+            </p>
+            <p style={{ fontSize: 11, color: '#9ca3af' }}>
+              AI-driven qualification to booking
+            </p>
           </div>
 
-          <div className="space-y-2 flex-1">
+          {/* Latency-style metrics */}
+          <div
+            className="grid grid-cols-3 gap-2 mb-5 pb-5"
+            style={{ borderBottom: '1px solid #f3f4f6' }}
+          >
             {[
-              { label: 'Human Handoff Queue',         sub: `${overview.pendingHandoffs} conversations waiting`, nav: 'conversations', dot: overview.pendingHandoffs > 0 ? 'rose' : 'emerald' },
-              { label: "Doctor Schedule & Slots",     sub: 'Dr. Ananya & Dr. Vikram on call', nav: 'appointments', dot: 'emerald' },
-              { label: 'Google Docs Knowledge Sync',  sub: 'Sync Status: Active',              nav: 'settings',      dot: 'emerald' },
+              { label: 'QUALIFY', value: rates.qualificationRate },
+              { label: 'BOOK',    value: rates.bookingRate },
+              { label: 'COMPLETE',value: rates.completionRate },
+            ].map(m => (
+              <div key={m.label} className="text-center">
+                <p style={{ fontSize: 9, fontWeight: 700, color: '#9ca3af', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 4 }}>
+                  {m.label}
+                </p>
+                <p style={{ fontSize: 18, fontWeight: 800, color: '#111111', letterSpacing: '-0.02em' }}>
+                  {m.value}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          {/* Sparkline */}
+          <div className="flex-1">
+            <div className="flex items-center justify-between mb-2">
+              <p style={{ fontSize: 11, color: '#6b7280' }}>Historical booking trend</p>
+              <span style={{ fontSize: 11, color: '#9ca3af' }}>7d avg</span>
+            </div>
+            <Sparkline points={SPARKLINE} />
+          </div>
+
+          {/* Quick action links */}
+          <div className="space-y-2 mt-4 pt-4" style={{ borderTop: '1px solid #f3f4f6' }}>
+            {[
+              { label: 'View Handoff Queue',    nav: 'conversations', dot: ov.pendingHandoffs > 0 ? '#ef4444' : '#22c55e' },
+              { label: 'Doctor Availability',   nav: 'appointments',  dot: '#22c55e' },
+              { label: 'Google Docs Sync',       nav: 'settings',      dot: '#22c55e' },
             ].map(item => (
               <button
                 key={item.nav}
                 onClick={() => onNavigate(item.nav)}
-                className="w-full group p-3.5 rounded-xl bg-dark-850/80 border border-white/5 hover:border-emerald-500/30 hover:bg-dark-800/80 text-left transition-all flex items-center gap-3"
+                className="w-full flex items-center justify-between px-3 py-2.5 rounded-lg hover:bg-gray-50 transition-colors group"
+                style={{ border: '1px solid #f3f4f6' }}
               >
-                <span
-                  className={`w-2 h-2 rounded-full flex-shrink-0 ${
-                    item.dot === 'rose' ? 'bg-rose-400 animate-pulse' : 'bg-emerald-400'
-                  }`}
-                />
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs font-bold text-slate-200 group-hover:text-white transition-colors truncate">{item.label}</p>
-                  <p className="text-[10px] text-slate-500 mt-0.5 truncate">{item.sub}</p>
+                <div className="flex items-center gap-2.5">
+                  <div className="w-1.5 h-1.5 rounded-full" style={{ background: item.dot }} />
+                  <span style={{ fontSize: 12, fontWeight: 500, color: '#374151' }}>{item.label}</span>
                 </div>
-                <ArrowRight className="w-3 h-3 text-slate-600 group-hover:text-emerald-400 group-hover:translate-x-0.5 transition-all shrink-0" />
+                <ArrowRight style={{ width: 13, height: 13, color: '#d1d5db' }} className="group-hover:text-gray-400 transition-colors" />
               </button>
             ))}
           </div>
+        </div>
+      </div>
 
-          <div className="mt-4 pt-3 border-t border-white/5 text-center">
-            <span className="text-[10px] text-slate-600 mono">Meta WhatsApp Cloud API v19.0</span>
-          </div>
+      {/* ── Recent Activity ── */}
+      <div className="panel p-5">
+        <div className="flex items-center justify-between mb-4">
+          <p style={{ fontSize: 14, fontWeight: 700, color: '#111111' }}>Recent AI Activity</p>
+          <button
+            onClick={() => onNavigate('conversations')}
+            className="btn-ghost"
+            style={{ fontSize: 11, padding: '5px 10px' }}
+          >
+            View all
+          </button>
+        </div>
+        <div className="space-y-0">
+          {[
+            { time: 'Just now', text: 'New WhatsApp enquiry received — Laser Hair Removal', dot: '#22c55e' },
+            { time: '2m ago',   text: 'Lead qualified → Appointment booked with Dr. Ananya', dot: '#22c55e' },
+            { time: '5m ago',   text: 'Human handoff triggered — complex pricing query', dot: '#ef4444' },
+            { time: '12m ago',  text: 'Google Docs knowledge base synced successfully', dot: '#22c55e' },
+            { time: '18m ago',  text: 'Appointment reminder sent — 3 patients via WhatsApp', dot: '#6b7280' },
+          ].map((item, i) => (
+            <div
+              key={i}
+              className="flex items-center gap-3 py-2.5 group"
+              style={{ borderBottom: i < 4 ? '1px solid #f9fafb' : 'none' }}
+            >
+              <div className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: item.dot }} />
+              <span style={{ fontSize: 12, color: '#374151', flex: 1 }}>{item.text}</span>
+              <span style={{ fontSize: 11, color: '#9ca3af', whiteSpace: 'nowrap' }}>{item.time}</span>
+            </div>
+          ))}
         </div>
       </div>
     </div>

@@ -1,36 +1,30 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
-  MessageSquare, User, Sparkles, UserCheck, Send,
-  RefreshCw, Search, Bot, ChevronRight, Phone, Clock,
+  MessageSquare, Search, RefreshCw, Send,
+  UserCheck, Sparkles, User, Phone,
 } from 'lucide-react';
 import { api } from '../services/api.js';
 
-function StatusBadge({ status }) {
-  const isPaused = status === 'PAUSED';
+function AiStatusBadge({ status }) {
+  const paused = status === 'PAUSED';
   return (
     <span
-      className={`inline-flex items-center gap-1 text-[9px] font-extrabold px-1.5 py-0.5 rounded-full ${
-        isPaused
-          ? 'bg-rose-500/15 text-rose-300 border border-rose-500/35'
-          : 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/35'
-      }`}
+      className="tag"
+      style={{ background: paused ? '#fee2e2' : '#dcfce7', color: paused ? '#991b1b' : '#15803d', fontSize: 10 }}
     >
-      <span
-        className={`w-1.5 h-1.5 rounded-full ${isPaused ? 'bg-rose-400' : 'bg-emerald-400 animate-pulse'}`}
-      />
-      {isPaused ? 'Human' : 'AI'}
+      {paused ? 'Human' : 'AI Active'}
     </span>
   );
 }
 
 export function Conversations() {
-  const [conversations, setConversations]   = useState([]);
-  const [selectedId,    setSelectedId]      = useState(null);
+  const [conversations,  setConversations]  = useState([]);
+  const [selectedId,     setSelectedId]     = useState(null);
   const [activeConvData, setActiveConvData] = useState(null);
-  const [replyText,     setReplyText]       = useState('');
-  const [loading,       setLoading]         = useState(true);
-  const [sending,       setSending]         = useState(false);
-  const [search,        setSearch]          = useState('');
+  const [replyText,      setReplyText]      = useState('');
+  const [loading,        setLoading]        = useState(true);
+  const [sending,        setSending]        = useState(false);
+  const [search,         setSearch]         = useState('');
   const bottomRef = useRef(null);
 
   const loadConversations = async () => {
@@ -38,21 +32,13 @@ export function Conversations() {
       const list = await api.getConversations();
       setConversations(list);
       if (list.length > 0 && !selectedId) setSelectedId(list[0].id);
-    } catch (err) {
-      console.error('Failed to load conversations', err);
-    } finally {
-      setLoading(false);
-    }
+    } catch (err) { console.error(err); }
+    finally { setLoading(false); }
   };
 
-  const loadSelectedConversation = async (id) => {
+  const loadSelected = async (id) => {
     if (!id) return;
-    try {
-      const data = await api.getConversation(id);
-      setActiveConvData(data);
-    } catch (err) {
-      console.error('Failed to load conversation details', err);
-    }
+    try { setActiveConvData(await api.getConversation(id)); } catch (err) { console.error(err); }
   };
 
   useEffect(() => {
@@ -61,38 +47,18 @@ export function Conversations() {
     return () => clearInterval(t);
   }, []);
 
-  useEffect(() => { if (selectedId) loadSelectedConversation(selectedId); }, [selectedId]);
+  useEffect(() => { if (selectedId) loadSelected(selectedId); }, [selectedId]);
+  useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [activeConvData]);
 
-  useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [activeConvData]);
-
-  const handleTakeover = async () => {
-    if (!selectedId) return;
-    await api.takeoverConversation(selectedId);
-    await loadSelectedConversation(selectedId);
-    await loadConversations();
-  };
-  const handleRelease = async () => {
-    if (!selectedId) return;
-    await api.releaseConversation(selectedId);
-    await loadSelectedConversation(selectedId);
-    await loadConversations();
-  };
-  const handleSendReply = async (e) => {
+  const handleTakeover = async () => { await api.takeoverConversation(selectedId); await loadSelected(selectedId); await loadConversations(); };
+  const handleRelease  = async () => { await api.releaseConversation(selectedId);  await loadSelected(selectedId); await loadConversations(); };
+  const handleSend = async (e) => {
     e.preventDefault();
     if (!replyText.trim() || !selectedId || sending) return;
     setSending(true);
-    try {
-      await api.sendStaffMessage(selectedId, replyText.trim());
-      setReplyText('');
-      await loadSelectedConversation(selectedId);
-      await loadConversations();
-    } catch (err) {
-      alert('Failed to send message: ' + err.message);
-    } finally {
-      setSending(false);
-    }
+    try { await api.sendStaffMessage(selectedId, replyText.trim()); setReplyText(''); await loadSelected(selectedId); await loadConversations(); }
+    catch (err) { alert('Failed: ' + err.message); }
+    finally { setSending(false); }
   };
 
   const conv         = activeConvData?.conversation;
@@ -106,338 +72,239 @@ export function Conversations() {
   );
 
   return (
-    <div
-      className="rounded-2xl border border-white/5 overflow-hidden flex flex-col"
-      style={{
-        height: 'calc(100vh - 8.5rem)',
-        minHeight: '520px',
-        background: '#06090f',
-        boxShadow: '0 8px 40px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.04)',
-      }}
-    >
-      <div className="grid grid-cols-1 md:grid-cols-12 h-full">
+    <div>
+      {/* Title */}
+      <div className="mb-4">
+        <h1 style={{ fontSize: 22, fontWeight: 800, color: '#111', letterSpacing: '-0.02em' }}>Chat Inbox</h1>
+        <p style={{ fontSize: 13, color: '#6b7280', marginTop: 2 }}>Live WhatsApp conversations managed by Derma AI</p>
+      </div>
 
-        {/* ── Conversation List ── */}
+      <div
+        className="panel overflow-hidden flex"
+        style={{ height: 'calc(100vh - 11rem)', minHeight: 500 }}
+      >
+        {/* ── List ── */}
         <div
-          className="md:col-span-4 flex flex-col h-full"
-          style={{ borderRight: '1px solid rgba(255,255,255,0.05)', background: 'rgba(4,6,12,0.8)' }}
+          className="flex flex-col"
+          style={{ width: 260, flexShrink: 0, borderRight: '1px solid #e5e7eb' }}
         >
-          {/* List Header */}
-          <div
-            className="p-3.5 flex items-center justify-between"
-            style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', background: 'rgba(0,0,0,0.3)' }}
-          >
-            <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-lg bg-emerald-500/15 border border-emerald-500/25 flex items-center justify-center">
-                <MessageSquare className="w-3.5 h-3.5 text-emerald-400" />
-              </div>
-              <span className="font-bold text-[11px] text-white tracking-tight">Patient Inbox</span>
-              <span className="text-[9px] font-extrabold px-1.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/25">
-                {conversations.length}
+          {/* List header */}
+          <div className="px-3 py-3" style={{ borderBottom: '1px solid #e5e7eb' }}>
+            <div className="flex items-center justify-between mb-2.5">
+              <span style={{ fontSize: 12, fontWeight: 700, color: '#111' }}>
+                Conversations <span style={{ color: '#9ca3af', fontWeight: 500 }}>({conversations.length})</span>
               </span>
+              <button onClick={loadConversations} className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 transition-colors">
+                <RefreshCw style={{ width: 12, height: 12 }} />
+              </button>
             </div>
-            <button
-              onClick={loadConversations}
-              className="p-1.5 rounded-lg text-slate-500 hover:text-emerald-400 hover:bg-white/5 transition-all"
-            >
-              <RefreshCw className="w-3.5 h-3.5" />
-            </button>
-          </div>
-
-          {/* Search */}
-          <div className="p-2.5" style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+            {/* Search */}
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3 h-3 text-slate-600" />
+              <Search style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', width: 12, height: 12, color: '#9ca3af' }} />
               <input
                 value={search}
                 onChange={e => setSearch(e.target.value)}
-                placeholder="Search patients..."
-                className="w-full bg-dark-850/80 text-white border border-dark-700 rounded-xl pl-8 pr-3 py-1.5 text-[11px] focus:outline-none focus:ring-1 focus:ring-emerald-500/50 focus:border-emerald-500/40 placeholder-slate-600 transition-all"
+                placeholder="Search…"
+                className="input-base"
+                style={{ paddingLeft: 28, fontSize: 12, height: 32 }}
               />
             </div>
           </div>
 
-          {/* List */}
-          <div className="flex-1 overflow-y-auto no-scrollbar divide-y divide-white/[0.03]">
+          {/* Items */}
+          <div className="flex-1 overflow-y-auto no-scrollbar">
             {loading ? (
-              <div className="p-8 text-center text-slate-600 text-xs">Loading chats…</div>
-            ) : filtered.length === 0 ? (
-              <div className="p-8 text-center text-slate-600 text-xs">No conversations found</div>
-            ) : (
-              filtered.map((item) => {
-                const isSelected = item.id === selectedId;
-                const isPaused   = item.ai_status === 'PAUSED';
-                return (
-                  <div
-                    key={item.id}
-                    onClick={() => setSelectedId(item.id)}
-                    className={`p-3.5 cursor-pointer transition-all ${
-                      isSelected
-                        ? 'border-l-2 border-emerald-500 bg-emerald-950/25'
-                        : 'border-l-2 border-transparent hover:bg-white/3'
-                    }`}
-                  >
-                    <div className="flex items-center gap-2.5">
-                      {/* Avatar */}
-                      <div
-                        className="w-9 h-9 rounded-xl flex items-center justify-center text-xs font-extrabold shrink-0 relative"
-                        style={{
-                          background: isSelected
-                            ? 'linear-gradient(135deg, #22c55e, #4ade80)'
-                            : 'linear-gradient(135deg, #1a2435, #202d42)',
-                          color: isSelected ? 'black' : '#94a3b8',
-                        }}
-                      >
-                        {(item.patient_name || 'P').charAt(0).toUpperCase()}
-                        {isPaused && (
-                          <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-rose-500 border border-dark-950 flex items-center justify-center">
-                            <User className="w-1.5 h-1.5 text-white" />
-                          </span>
-                        )}
-                      </div>
-
-                      {/* Info */}
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between mb-0.5">
-                          <span className={`font-bold text-[11px] truncate ${isSelected ? 'text-white' : 'text-slate-300'}`}>
-                            {item.patient_name || item.patient_phone}
-                          </span>
-                          <span className="text-[9px] text-slate-600 font-mono shrink-0 ml-1">
-                            {new Date(item.updated_at || item.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                          </span>
-                        </div>
-                        <p className="text-[10px] text-slate-500 truncate mb-1.5">{item.last_message || 'No messages'}</p>
-                        <div className="flex items-center gap-1 flex-wrap">
-                          <StatusBadge status={item.ai_status} />
-                          {item.last_intent && (
-                            <span className="text-[9px] px-1.5 py-0.5 rounded bg-dark-750 text-slate-400 border border-white/5">
-                              {item.last_intent}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    </div>
+              <div className="p-6 text-center" style={{ fontSize: 12, color: '#9ca3af' }}>Loading…</div>
+            ) : filtered.map(item => {
+              const isSelected = item.id === selectedId;
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => setSelectedId(item.id)}
+                  className="w-full text-left px-3 py-3 transition-colors"
+                  style={{
+                    borderBottom: '1px solid #f9fafb',
+                    background: isSelected ? '#f0fdf4' : 'transparent',
+                    borderLeft: isSelected ? '3px solid #22c55e' : '3px solid transparent',
+                  }}
+                >
+                  <div className="flex items-start justify-between mb-1">
+                    <span style={{ fontSize: 12, fontWeight: 600, color: '#111' }}>
+                      {item.patient_name || item.patient_phone}
+                    </span>
+                    <span style={{ fontSize: 10, color: '#9ca3af', fontFamily: 'monospace', flexShrink: 0, marginLeft: 4 }}>
+                      {new Date(item.updated_at || item.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </span>
                   </div>
-                );
-              })
-            )}
+                  <p style={{ fontSize: 11, color: '#6b7280', marginBottom: 6, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {item.last_message || 'No messages'}
+                  </p>
+                  <div className="flex items-center gap-1.5">
+                    <AiStatusBadge status={item.ai_status} />
+                    {item.last_intent && (
+                      <span className="tag tag-gray" style={{ fontSize: 10 }}>{item.last_intent}</span>
+                    )}
+                  </div>
+                </button>
+              );
+            })}
           </div>
         </div>
 
-        {/* ── Chat Area ── */}
-        <div className="md:col-span-8 flex flex-col lg:flex-row h-full">
-          <div
-            className="flex-1 flex flex-col"
-            style={{ borderRight: '1px solid rgba(255,255,255,0.04)' }}
-          >
-            {conv ? (
-              <>
-                {/* Chat Top Bar */}
-                <div
-                  className="px-4 py-3 flex items-center justify-between"
-                  style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', background: 'rgba(4,6,12,0.6)' }}
-                >
-                  <div className="flex items-center gap-3">
-                    <div
-                      className="w-9 h-9 rounded-xl font-extrabold text-xs flex items-center justify-center text-black"
-                      style={{ background: 'linear-gradient(135deg, #22c55e, #4ade80)', boxShadow: '0 0 14px rgba(34,197,94,0.35)' }}
-                    >
-                      {conv.patient_name?.charAt(0) || 'P'}
-                    </div>
-                    <div>
-                      <h4 className="font-bold text-[11px] text-white leading-tight">{conv.patient_name}</h4>
-                      <p className="text-[10px] text-emerald-400 font-mono mt-0.5">{conv.patient_phone}</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    {conv.ai_status === 'ACTIVE' ? (
-                      <button
-                        onClick={handleTakeover}
-                        className="px-3 py-1.5 rounded-xl bg-rose-600/90 hover:bg-rose-600 text-white font-bold text-[10px] flex items-center gap-1.5 transition-all"
-                        style={{ boxShadow: '0 0 14px rgba(225,29,72,0.25)' }}
-                      >
-                        <UserCheck className="w-3.5 h-3.5" />
-                        Pause AI
-                      </button>
-                    ) : (
-                      <button
-                        onClick={handleRelease}
-                        className="btn-glow px-3 py-1.5 rounded-xl bg-emerald-500 text-black font-extrabold text-[10px] flex items-center gap-1.5"
-                      >
-                        <Sparkles className="w-3.5 h-3.5" />
-                        Resume Derma AI
-                      </button>
-                    )}
-                  </div>
-                </div>
-
-                {/* Messages */}
-                <div className="flex-1 p-4 overflow-y-auto space-y-3 no-scrollbar chat-dark-bg">
-                  {messages.map((m, idx) => {
-                    const isCustomer = m.sender === 'CUSTOMER';
-                    const isAI = m.sender === 'AI';
-                    return (
-                      <div key={idx} className={`flex ${isCustomer ? 'justify-start' : 'justify-end'}`}>
-                        <div
-                          className={`max-w-[75%] rounded-2xl px-3.5 py-2.5 text-xs ${
-                            isCustomer
-                              ? 'rounded-tl-sm'
-                              : isAI
-                              ? 'rounded-tr-sm'
-                              : 'rounded-tr-sm'
-                          }`}
-                          style={
-                            isCustomer
-                              ? { background: '#18222d', border: '1px solid rgba(255,255,255,0.07)', color: '#e2e8f0' }
-                              : isAI
-                              ? { background: '#003d35', border: '1px solid rgba(34,197,94,0.25)', color: '#a7f3d0', boxShadow: '0 0 20px rgba(0,100,80,0.15)' }
-                              : { background: '#22c55e', color: 'black', fontWeight: 600, boxShadow: '0 0 14px rgba(34,197,94,0.3)' }
-                          }
-                        >
-                          {/* Sender label */}
-                          <div className="flex items-center gap-1 mb-1.5 opacity-70 text-[9px] font-extrabold uppercase tracking-wide">
-                            {isCustomer ? (
-                              <><Phone className="w-2.5 h-2.5" />{conv.patient_name}</>
-                            ) : isAI ? (
-                              <><Sparkles className="w-2.5 h-2.5" />Derma AI</>
-                            ) : (
-                              <><User className="w-2.5 h-2.5" />Staff Reply</>
-                            )}
-                          </div>
-                          <p className="whitespace-pre-line leading-relaxed">{m.text}</p>
-                          <span className="block text-[9px] text-right mt-1.5 opacity-50 font-mono">
-                            {new Date(m.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                          </span>
-                        </div>
-                      </div>
-                    );
-                  })}
-                  <div ref={bottomRef} />
-                </div>
-
-                {/* Reply Bar */}
-                <form
-                  onSubmit={handleSendReply}
-                  className="p-3 flex items-center gap-2"
-                  style={{ borderTop: '1px solid rgba(255,255,255,0.05)', background: 'rgba(4,6,12,0.6)' }}
-                >
-                  <input
-                    type="text"
-                    value={replyText}
-                    onChange={e => setReplyText(e.target.value)}
-                    placeholder={
-                      conv.ai_status === 'ACTIVE'
-                        ? 'Type to send manual staff message (AI active)…'
-                        : 'Type message to patient on WhatsApp…'
-                    }
-                    className="flex-1 input-dark text-[11px]"
-                  />
-                  <button
-                    type="submit"
-                    disabled={!replyText.trim() || sending}
-                    className="btn-glow px-4 py-2 rounded-xl bg-emerald-500 text-black font-extrabold text-[11px] flex items-center gap-1.5 disabled:opacity-50 disabled:pointer-events-none"
+        {/* ── Chat ── */}
+        <div className="flex flex-col flex-1 min-w-0">
+          {conv ? (
+            <>
+              {/* Chat header */}
+              <div className="px-4 py-3 flex items-center justify-between" style={{ borderBottom: '1px solid #e5e7eb' }}>
+                <div className="flex items-center gap-3">
+                  <div
+                    className="w-8 h-8 rounded-full flex items-center justify-center text-white font-bold shrink-0"
+                    style={{ background: '#22c55e', fontSize: 12 }}
                   >
-                    <Send className="w-3.5 h-3.5" />
-                    Send
-                  </button>
-                </form>
-              </>
-            ) : (
-              <div className="flex-1 flex flex-col items-center justify-center gap-3 text-slate-600">
-                <div className="w-14 h-14 rounded-2xl bg-dark-850 border border-white/5 flex items-center justify-center">
-                  <MessageSquare className="w-6 h-6 text-slate-700" />
-                </div>
-                <p className="text-xs font-medium">Select a conversation to view messages</p>
-              </div>
-            )}
-          </div>
-
-          {/* ── Patient Context Sidebar ── */}
-          {conv && (
-            <div
-              className="w-full lg:w-64 flex flex-col overflow-y-auto no-scrollbar"
-              style={{ background: 'rgba(4,6,12,0.8)', borderTop: '1px solid rgba(255,255,255,0.04)' }}
-            >
-              <div
-                className="px-4 py-3"
-                style={{ borderBottom: '1px solid rgba(255,255,255,0.04)', background: 'rgba(0,0,0,0.2)' }}
-              >
-                <p className="text-[9px] font-extrabold text-slate-600 uppercase tracking-widest">Patient Context</p>
-              </div>
-
-              <div className="p-3 space-y-3">
-                {/* Profile */}
-                <div className="p-3 rounded-xl bg-dark-900/80 border border-white/5 space-y-2">
-                  <p className="text-[9px] font-extrabold text-slate-600 uppercase tracking-wider">Profile</p>
-                  <div className="space-y-1.5">
-                    {[
-                      { k: 'Name',     v: conv.patient_name },
-                      { k: 'Phone',    v: conv.patient_phone, mono: true },
-                      { k: 'AI State', v: conv.stage },
-                    ].map(row => (
-                      <div key={row.k} className="flex justify-between items-center gap-1">
-                        <span className="text-[10px] text-slate-500">{row.k}</span>
-                        <span className={`text-[10px] font-bold text-right truncate max-w-[55%] ${row.mono ? 'text-emerald-400 font-mono' : 'text-slate-200'}`}>
-                          {row.v}
-                        </span>
-                      </div>
-                    ))}
+                    {(conv.patient_name || 'P').charAt(0)}
+                  </div>
+                  <div>
+                    <p style={{ fontSize: 13, fontWeight: 700, color: '#111' }}>{conv.patient_name}</p>
+                    <p style={{ fontSize: 11, color: '#22c55e', fontFamily: 'monospace' }}>{conv.patient_phone}</p>
                   </div>
                 </div>
+                <div>
+                  {conv.ai_status === 'ACTIVE' ? (
+                    <button onClick={handleTakeover} className="btn-ghost" style={{ fontSize: 11, color: '#dc2626', borderColor: '#fecaca' }}>
+                      <UserCheck style={{ width: 12, height: 12 }} />
+                      Pause AI
+                    </button>
+                  ) : (
+                    <button onClick={handleRelease} className="btn-primary" style={{ fontSize: 11 }}>
+                      <Sparkles style={{ width: 12, height: 12 }} />
+                      Resume AI
+                    </button>
+                  )}
+                </div>
+              </div>
 
-                {/* Lead */}
-                {lead && (
-                  <div className="p-3 rounded-xl bg-dark-900/80 border border-white/5 space-y-2">
-                    <p className="text-[9px] font-extrabold text-slate-600 uppercase tracking-wider">Lead</p>
-                    <div className="space-y-1.5">
-                      <div className="flex justify-between items-center">
-                        <span className="text-[10px] text-slate-500">Service</span>
-                        <span className="text-[10px] font-bold text-slate-200 truncate max-w-[55%]">{lead.service}</span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-[10px] text-slate-500">Status</span>
-                        <span className="text-[9px] font-extrabold px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-300 border border-emerald-500/25">
-                          {lead.status}
-                        </span>
+              {/* Messages */}
+              <div
+                className="flex-1 overflow-y-auto no-scrollbar p-4 space-y-3"
+                style={{ background: '#fafafa' }}
+              >
+                {messages.map((m, i) => {
+                  const isCustomer = m.sender === 'CUSTOMER';
+                  const isAI = m.sender === 'AI';
+                  return (
+                    <div key={i} className={`flex ${isCustomer ? 'justify-start' : 'justify-end'}`}>
+                      <div
+                        className="max-w-xs px-3.5 py-2.5 rounded-2xl"
+                        style={{
+                          background: isCustomer ? '#ffffff' : isAI ? '#111111' : '#22c55e',
+                          color: isCustomer ? '#111' : '#ffffff',
+                          border: isCustomer ? '1px solid #e5e7eb' : 'none',
+                          fontSize: 12,
+                          lineHeight: 1.5,
+                          boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
+                        }}
+                      >
+                        <div className="flex items-center gap-1 mb-1" style={{ fontSize: 10, opacity: 0.6, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                          {isCustomer ? <><Phone style={{ width: 9, height: 9 }} />{conv.patient_name}</>
+                           : isAI ? <><Sparkles style={{ width: 9, height: 9 }} />Derma AI</>
+                           : <><User style={{ width: 9, height: 9 }} />Staff</>}
+                        </div>
+                        <p style={{ whiteSpace: 'pre-wrap' }}>{m.text}</p>
+                        <p style={{ fontSize: 9, textAlign: 'right', marginTop: 4, opacity: 0.5, fontFamily: 'monospace' }}>
+                          {new Date(m.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </p>
                       </div>
                     </div>
-                  </div>
-                )}
+                  );
+                })}
+                <div ref={bottomRef} />
+              </div>
 
-                {/* Appointments */}
-                {appointments.length > 0 && (
-                  <div className="space-y-2">
-                    <p className="text-[9px] font-extrabold text-slate-600 uppercase tracking-wider px-0.5">Appointments</p>
-                    {appointments.map(a => (
-                      <div key={a.id} className="p-3 rounded-xl bg-dark-900/80 border border-white/5 space-y-1">
-                        <div className="flex items-center justify-between">
-                          <span className="font-bold text-[10px] text-slate-200 truncate">{a.service_name}</span>
-                          <span className="text-[9px] font-extrabold text-emerald-400">{a.status}</span>
-                        </div>
-                        <p className="text-[10px] text-slate-500 font-mono">{a.date} · {a.time}</p>
-                        <p className="text-[10px] text-slate-600">{a.doctor_name}</p>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {/* Handoffs */}
-                {handoffs.length > 0 && (
-                  <div className="space-y-2">
-                    <p className="text-[9px] font-extrabold text-rose-500 uppercase tracking-wider px-0.5">⚠ Handoff Alerts</p>
-                    {handoffs.map(h => (
-                      <div key={h.id} className="p-3 rounded-xl bg-rose-950/30 border border-rose-500/30 text-[10px] space-y-1">
-                        <span className="font-extrabold text-rose-400 text-[9px] uppercase">Reason</span>
-                        <p className="text-rose-200 leading-relaxed">{h.reason}</p>
-                      </div>
-                    ))}
-                  </div>
-                )}
+              {/* Reply */}
+              <form onSubmit={handleSend} className="flex items-center gap-2 px-4 py-3" style={{ borderTop: '1px solid #e5e7eb' }}>
+                <input
+                  type="text"
+                  value={replyText}
+                  onChange={e => setReplyText(e.target.value)}
+                  placeholder={conv.ai_status === 'ACTIVE' ? 'AI is responding (type to override)…' : 'Type message…'}
+                  className="input-base flex-1"
+                  style={{ height: 36, fontSize: 12 }}
+                />
+                <button
+                  type="submit"
+                  disabled={!replyText.trim() || sending}
+                  className="btn-primary"
+                  style={{ height: 36, padding: '0 16px', fontSize: 12, opacity: (!replyText.trim() || sending) ? 0.5 : 1 }}
+                >
+                  <Send style={{ width: 13, height: 13 }} />
+                  Send
+                </button>
+              </form>
+            </>
+          ) : (
+            <div className="flex-1 flex items-center justify-center" style={{ color: '#9ca3af', fontSize: 13 }}>
+              <div className="text-center">
+                <MessageSquare style={{ width: 32, height: 32, margin: '0 auto 8px', opacity: 0.3 }} />
+                <p>Select a conversation</p>
               </div>
             </div>
           )}
         </div>
+
+        {/* ── Context panel ── */}
+        {conv && (
+          <div
+            className="flex-col overflow-y-auto no-scrollbar hidden lg:flex"
+            style={{ width: 220, flexShrink: 0, borderLeft: '1px solid #e5e7eb', padding: 12 }}
+          >
+            <p style={{ fontSize: 10, fontWeight: 700, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 10 }}>Patient Info</p>
+            <div className="space-y-2 text-xs">
+              {[['Name', conv.patient_name], ['Phone', conv.patient_phone], ['Stage', conv.stage]].map(([k, v]) => (
+                <div key={k} className="flex justify-between">
+                  <span style={{ color: '#6b7280' }}>{k}</span>
+                  <span style={{ fontWeight: 600, color: k === 'Phone' ? '#22c55e' : '#111', fontFamily: k === 'Phone' ? 'monospace' : 'inherit', maxWidth: 110, overflow: 'hidden', textOverflow: 'ellipsis' }}>{v}</span>
+                </div>
+              ))}
+            </div>
+
+            {lead && (
+              <>
+                <div className="my-3" style={{ height: 1, background: '#f3f4f6' }} />
+                <p style={{ fontSize: 10, fontWeight: 700, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 8 }}>Lead</p>
+                <div className="space-y-2 text-xs">
+                  <div className="flex justify-between"><span style={{ color: '#6b7280' }}>Service</span><span style={{ fontWeight: 600, color: '#111', maxWidth: 110, overflow: 'hidden', textOverflow: 'ellipsis' }}>{lead.service}</span></div>
+                  <div className="flex justify-between items-center"><span style={{ color: '#6b7280' }}>Status</span><span className="tag tag-green" style={{ fontSize: 9 }}>{lead.status}</span></div>
+                </div>
+              </>
+            )}
+
+            {appointments.length > 0 && (
+              <>
+                <div className="my-3" style={{ height: 1, background: '#f3f4f6' }} />
+                <p style={{ fontSize: 10, fontWeight: 700, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 8 }}>Appointments</p>
+                {appointments.map(a => (
+                  <div key={a.id} className="p-2.5 rounded-lg mb-2" style={{ background: '#f9fafb', border: '1px solid #e5e7eb' }}>
+                    <p style={{ fontSize: 11, fontWeight: 700, color: '#111' }}>{a.service_name}</p>
+                    <p style={{ fontSize: 10, color: '#6b7280', marginTop: 2, fontFamily: 'monospace' }}>{a.date} · {a.time}</p>
+                  </div>
+                ))}
+              </>
+            )}
+
+            {handoffs.length > 0 && (
+              <>
+                <div className="my-3" style={{ height: 1, background: '#f3f4f6' }} />
+                <p style={{ fontSize: 10, fontWeight: 700, color: '#dc2626', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 8 }}>⚠ Handoff</p>
+                {handoffs.map(h => (
+                  <div key={h.id} className="p-2.5 rounded-lg" style={{ background: '#fff5f5', border: '1px solid #fecaca' }}>
+                    <p style={{ fontSize: 10, color: '#991b1b' }}>{h.reason}</p>
+                  </div>
+                ))}
+              </>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

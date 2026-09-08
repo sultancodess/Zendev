@@ -1,153 +1,112 @@
 import React from 'react';
 import {
-  LayoutDashboard,
-  MessageSquare,
-  Users,
-  Calendar,
-  Sparkles,
-  UserCheck,
-  HelpCircle,
-  BarChart3,
-  Smartphone,
-  Settings,
-  X,
-  ChevronRight,
-  Activity,
+  LayoutDashboard, MessageSquare, Users, Calendar,
+  Sparkles, UserCheck, HelpCircle, BarChart3,
+  Smartphone, Settings, ChevronRight,
 } from 'lucide-react';
 import { Logo } from './Logo.jsx';
+import { useAuth } from '../context/AuthContext.jsx';
 
-const NAV_ITEMS = [
-  { id: 'overview',      label: 'Overview',           icon: LayoutDashboard },
-  { id: 'conversations', label: 'Live Chat Inbox',     icon: MessageSquare,  badge: 'Live' },
-  { id: 'leads',         label: 'Leads Pipeline',      icon: Users },
-  { id: 'appointments',  label: 'Appointments',        icon: Calendar },
-  { id: 'services',      label: 'Treatments',          icon: Sparkles },
-  { id: 'doctors',       label: 'Doctors',             icon: UserCheck },
-  { id: 'faqs',          label: 'FAQs',                icon: HelpCircle },
-  { id: 'analytics',     label: 'Analytics',           icon: BarChart3 },
-  { id: 'simulator',     label: 'WhatsApp Simulator',  icon: Smartphone },
-  { id: 'settings',      label: 'Settings',            icon: Settings },
+const NAV = [
+  { id: 'overview',      label: 'Overview',          icon: LayoutDashboard },
+  { id: 'conversations', label: 'Chat Inbox',         icon: MessageSquare },
+  { id: 'leads',         label: 'Leads',              icon: Users },
+  { id: 'appointments',  label: 'Appointments',       icon: Calendar },
+  { id: 'services',      label: 'Treatments',         icon: Sparkles },
+  { id: 'doctors',       label: 'Doctors',            icon: UserCheck },
+  { id: 'faqs',          label: 'FAQs',               icon: HelpCircle },
+  { id: 'analytics',     label: 'Analytics',          icon: BarChart3 },
+  { id: 'simulator',     label: 'Live Simulator',     icon: Smartphone },
+  { id: 'settings',      label: 'Settings',           icon: Settings },
 ];
 
 export function Sidebar({ activeTab, setActiveTab, isOpen, setIsOpen }) {
+  const { clinic } = useAuth();
+
   return (
     <>
-      {/* Mobile Backdrop */}
+      {/* Mobile overlay */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-black/80 backdrop-blur-md z-40 lg:hidden"
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
           onClick={() => setIsOpen(false)}
         />
       )}
 
       <aside
-        className={`fixed top-0 left-0 bottom-0 w-60 z-50 flex flex-col transition-transform duration-300 ease-in-out lg:translate-x-0 ${
+        className={`fixed top-0 left-0 bottom-0 z-50 flex flex-col transition-transform duration-300 lg:translate-x-0 ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
-        style={{
-          background: 'linear-gradient(180deg, #020407 0%, #03060a 100%)',
-          borderRight: '1px solid rgba(255,255,255,0.05)',
-        }}
+        style={{ width: 192, background: '#111111' }}
       >
-        {/* Top green hairline */}
-        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-emerald-500/50 to-transparent" />
-
-        {/* Brand */}
-        <div
-          className="px-4 py-4 flex items-center justify-between"
-          style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}
-        >
-          <Logo size={34} />
-          <button
-            onClick={() => setIsOpen(false)}
-            className="lg:hidden p-1.5 rounded-xl text-slate-600 hover:text-white hover:bg-white/5 transition-all"
-          >
-            <X className="w-4 h-4" />
-          </button>
+        {/* Logo */}
+        <div className="px-4 py-5" style={{ borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
+          <div className="flex items-center justify-between">
+            <Logo size={30} />
+            <span
+              className="text-[9px] font-bold px-1.5 py-0.5 rounded"
+              style={{ background: 'rgba(255,255,255,0.08)', color: '#9ca3af', letterSpacing: '0.06em' }}
+            >
+              v1.0
+            </span>
+          </div>
         </div>
 
-        {/* Section Label */}
-        <div className="px-4 pt-4 pb-1.5">
-          <span className="text-[9px] font-extrabold tracking-[0.18em] text-slate-700 uppercase">
-            Menu
-          </span>
+        {/* Project Info */}
+        <div className="px-4 py-3" style={{ borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
+          <p style={{ fontSize: 9, color: '#6b7280', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 4 }}>
+            PROJECT
+          </p>
+          <div className="flex items-center justify-between gap-1.5">
+            <p
+              className="text-white font-semibold truncate"
+              style={{ fontSize: 12 }}
+            >
+              {clinic?.name || 'DermaCare Clinic'}
+            </p>
+            <span className="badge-green shrink-0" style={{ fontSize: 8 }}>PRO</span>
+          </div>
         </div>
 
         {/* Nav */}
-        <nav className="flex-1 px-2.5 space-y-0.5 overflow-y-auto no-scrollbar">
-          {NAV_ITEMS.map((item) => {
+        <nav className="flex-1 px-2.5 py-3 space-y-0.5 overflow-y-auto no-scrollbar">
+          {NAV.map(item => {
             const Icon = item.icon;
             const isActive = activeTab === item.id;
             return (
               <button
                 key={item.id}
                 onClick={() => { setActiveTab(item.id); setIsOpen(false); }}
-                className={`w-full group flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold transition-all duration-150 ${
+                className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-left transition-all ${
                   isActive
-                    ? 'nav-active text-emerald-300'
-                    : 'text-slate-500 hover:text-slate-100 hover:bg-white/[0.04]'
+                    ? 'nav-active'
+                    : 'text-gray-400 hover:text-white hover:bg-white/5'
                 }`}
+                style={{ fontSize: 13, fontWeight: isActive ? 600 : 500 }}
               >
-                <div className="flex items-center gap-2.5">
-                  <div
-                    className={`flex items-center justify-center w-6 h-6 rounded-lg transition-all shrink-0 ${
-                      isActive
-                        ? 'bg-emerald-500/20 text-emerald-400'
-                        : 'text-slate-600 group-hover:text-slate-400'
-                    }`}
-                  >
-                    <Icon className="w-3.5 h-3.5" />
-                  </div>
-                  <span className="font-semibold tracking-tight">{item.label}</span>
-                </div>
-
-                {item.badge && (
-                  <span
-                    className="text-[8px] font-extrabold px-1.5 py-0.5 rounded-full flex items-center gap-1"
-                    style={{
-                      background: 'rgba(34,197,94,0.12)',
-                      color: '#86efac',
-                      border: '1px solid rgba(34,197,94,0.25)',
-                    }}
-                  >
-                    <span className="w-1 h-1 rounded-full bg-emerald-400 animate-pulse inline-block" />
-                    {item.badge}
-                  </span>
-                )}
-                {isActive && !item.badge && (
-                  <ChevronRight className="w-3 h-3 text-emerald-500/50" />
-                )}
+                <Icon
+                  style={{ width: 15, height: 15, flexShrink: 0, opacity: isActive ? 1 : 0.7 }}
+                />
+                {item.label}
               </button>
             );
           })}
         </nav>
 
-        {/* Status Footer */}
-        <div
-          className="m-3 p-3 rounded-xl"
-          style={{
-            background: 'rgba(255,255,255,0.02)',
-            border: '1px solid rgba(255,255,255,0.05)',
-          }}
-        >
-          <div className="flex items-center gap-2.5">
-            <div
-              className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0"
-              style={{
-                background: 'rgba(34,197,94,0.1)',
-                border: '1px solid rgba(34,197,94,0.2)',
-              }}
-            >
-              <Activity className="w-3.5 h-3.5 text-emerald-400" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-[10px] font-bold text-slate-300 leading-tight">WhatsApp Webhook</p>
-              <p className="text-[9px] text-emerald-400 font-mono mt-0.5 truncate">+91 98765 43210</p>
-            </div>
-            <div className="relative flex h-2 w-2 shrink-0">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
-            </div>
+        {/* Bottom — live status */}
+        <div className="px-4 py-4" style={{ borderTop: '1px solid rgba(255,255,255,0.07)' }}>
+          <div className="flex items-center gap-2">
+            <span className="relative flex h-2 w-2 shrink-0">
+              <span
+                className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75"
+                style={{ background: '#22c55e' }}
+              />
+              <span
+                className="relative inline-flex rounded-full h-2 w-2"
+                style={{ background: '#22c55e' }}
+              />
+            </span>
+            <span style={{ fontSize: 11, color: '#9ca3af' }}>AI Webhook Active</span>
           </div>
         </div>
       </aside>

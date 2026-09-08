@@ -1,93 +1,82 @@
 import React from 'react';
-import { Menu, Bell } from 'lucide-react';
+import { Menu, Bell, ChevronRight, Play } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.jsx';
-import { ThemeBadge } from './ThemeBadge.jsx';
 
-export function Header({ onMenuClick, pendingHandoffCount = 0 }) {
-  const { user, clinic } = useAuth();
+const PAGE_LABELS = {
+  overview:      'overview',
+  conversations: 'chat-inbox',
+  leads:         'leads',
+  appointments:  'appointments',
+  services:      'treatments',
+  doctors:       'doctors',
+  faqs:          'faqs',
+  analytics:     'analytics',
+  simulator:     'simulator',
+  settings:      'settings',
+};
+
+export function Header({ onMenuClick, activeTab, onNavigate, pendingHandoffCount = 0 }) {
+  const { user } = useAuth();
+  const crumb = PAGE_LABELS[activeTab] || activeTab;
 
   return (
     <header
-      className="sticky top-0 z-30 h-14 px-4 sm:px-6 flex items-center justify-between"
-      style={{
-        background: 'rgba(3,5,8,0.88)',
-        backdropFilter: 'blur(24px)',
-        WebkitBackdropFilter: 'blur(24px)',
-        borderBottom: '1px solid rgba(255,255,255,0.05)',
-      }}
+      className="sticky top-0 z-30 flex items-center justify-between px-6 h-12 bg-white"
+      style={{ borderBottom: '1px solid #e5e7eb' }}
     >
-      {/* Left */}
-      <div className="flex items-center gap-3">
+      {/* Breadcrumb */}
+      <div className="flex items-center gap-1.5">
         <button
           onClick={onMenuClick}
-          className="lg:hidden p-2 rounded-xl text-slate-500 hover:text-white hover:bg-white/5 transition-all"
+          className="lg:hidden mr-2 p-1.5 rounded-lg hover:bg-gray-100 text-gray-500 transition-colors"
         >
-          <Menu className="w-4.5 h-4.5" style={{ width: '1.1rem', height: '1.1rem' }} />
+          <Menu style={{ width: 16, height: 16 }} />
         </button>
 
-        <div>
-          <div className="flex items-center gap-2">
-            <h2 className="text-sm font-bold text-white tracking-tight leading-none">
-              {clinic?.name || 'DermaCare Skin & Laser Clinic'}
-            </h2>
-            <span
-              className="hidden sm:inline-flex items-center gap-1 text-[9px] font-extrabold px-2 py-0.5 rounded-full uppercase tracking-widest"
-              style={{
-                background: 'rgba(34,197,94,0.1)',
-                color: '#86efac',
-                border: '1px solid rgba(34,197,94,0.25)',
-              }}
-            >
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse inline-block" />
-              AI Active
-            </span>
-          </div>
-          <p className="text-[10px] text-slate-600 hidden sm:block mt-0.5 font-medium">
-            Derma.ai · WhatsApp Cloud API v19.0
-          </p>
-        </div>
+        <span style={{ fontSize: 13, color: '#9ca3af', fontWeight: 500 }}>dashboard</span>
+        <ChevronRight style={{ width: 12, height: 12, color: '#d1d5db' }} />
+        <span style={{ fontSize: 13, color: '#111111', fontWeight: 600 }}>{crumb}</span>
       </div>
 
-      {/* Right */}
-      <div className="flex items-center gap-2 sm:gap-3">
-
-        {/* Theme / Status Badge */}
-        <ThemeBadge />
-
+      {/* Right actions */}
+      <div className="flex items-center gap-2.5">
         {/* Handoff alert */}
         {pendingHandoffCount > 0 && (
-          <div
-            className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-extrabold animate-pulse"
-            style={{
-              background: 'rgba(244,63,94,0.12)',
-              border: '1px solid rgba(244,63,94,0.3)',
-              color: '#fda4af',
-            }}
+          <button
+            onClick={() => onNavigate?.('conversations')}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-colors"
+            style={{ fontSize: 12, fontWeight: 600, border: '1px solid #fecaca' }}
           >
-            <Bell className="w-3 h-3" />
-            <span>{pendingHandoffCount} Handoff</span>
-          </div>
+            <Bell style={{ width: 13, height: 13 }} />
+            {pendingHandoffCount} handoff{pendingHandoffCount > 1 ? 's' : ''} pending
+          </button>
         )}
 
-        {/* Divider */}
-        <div className="h-5 w-px bg-white/8 hidden sm:block" />
+        {/* CTA */}
+        <button
+          onClick={() => onNavigate?.('simulator')}
+          className="btn-primary"
+          style={{ fontSize: 12, padding: '6px 14px' }}
+        >
+          <Play style={{ width: 11, height: 11 }} />
+          Launch Simulator
+        </button>
 
-        {/* User Avatar */}
-        <div className="flex items-center gap-2">
+        {/* User pill */}
+        <button
+          className="flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-gray-50 transition-colors"
+          style={{ border: '1px solid #e5e7eb' }}
+        >
           <div
-            className="w-8 h-8 rounded-xl flex items-center justify-center font-black text-xs text-black shrink-0"
-            style={{
-              background: 'linear-gradient(135deg, #22c55e 0%, #4ade80 100%)',
-              boxShadow: '0 0 12px rgba(34,197,94,0.3)',
-            }}
+            className="w-6 h-6 rounded-full flex items-center justify-center font-bold text-white shrink-0"
+            style={{ background: '#22c55e', fontSize: 10 }}
           >
             {(user?.name?.charAt(0) || 'D').toUpperCase()}
           </div>
-          <div className="hidden md:block">
-            <p className="text-[11px] font-bold text-slate-200 leading-tight">{user?.name || 'Staff User'}</p>
-            <p className="text-[9px] text-slate-600 uppercase tracking-widest font-semibold">{user?.role || 'RECEPTIONIST'}</p>
-          </div>
-        </div>
+          <span style={{ fontSize: 12, fontWeight: 600, color: '#374151' }}>
+            {user?.name || 'Staff'}
+          </span>
+        </button>
       </div>
     </header>
   );
