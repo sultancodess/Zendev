@@ -9,7 +9,7 @@ import { useAuth } from '../context/AuthContext.jsx';
 
 const NAV = [
   { id: 'overview',      label: 'Overview',          icon: LayoutDashboard },
-  { id: 'conversations', label: 'Chat Inbox',         icon: MessageSquare },
+  { id: 'conversations', label: 'Chat Inbox',         icon: MessageSquare,  live: true },
   { id: 'leads',         label: 'Leads',              icon: Users },
   { id: 'appointments',  label: 'Appointments',       icon: Calendar },
   { id: 'services',      label: 'Treatments',         icon: Sparkles },
@@ -20,93 +20,96 @@ const NAV = [
   { id: 'settings',      label: 'Settings',           icon: Settings },
 ];
 
+const GROUPS = [
+  { label: 'Main',       ids: ['overview','conversations','leads','appointments'] },
+  { label: 'Catalog',    ids: ['services','doctors','faqs'] },
+  { label: 'Reporting',  ids: ['analytics'] },
+  { label: 'Tools',      ids: ['simulator','settings'] },
+];
+
 export function Sidebar({ activeTab, setActiveTab, isOpen, setIsOpen }) {
   const { clinic } = useAuth();
 
+  const navMap = Object.fromEntries(NAV.map(n => [n.id, n]));
+
   return (
     <>
-      {/* Mobile overlay */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          className="fixed inset-0 z-40 lg:hidden"
+          style={{ background: 'rgba(0,0,0,0.5)' }}
           onClick={() => setIsOpen(false)}
         />
       )}
 
       <aside
-        className={`fixed top-0 left-0 bottom-0 z-50 flex flex-col transition-transform duration-300 lg:translate-x-0 ${
+        className={`sidebar fixed top-0 left-0 bottom-0 z-50 flex flex-col lg:translate-x-0 transition-transform duration-300 ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
-        style={{ width: 192, background: '#111111' }}
       >
-        {/* Logo */}
-        <div className="px-4 py-5" style={{ borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
+        {/* Logo row */}
+        <div className="px-4 pt-5 pb-4" style={{ borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
           <div className="flex items-center justify-between">
             <Logo size={30} />
-            <span
-              className="text-[9px] font-bold px-1.5 py-0.5 rounded"
-              style={{ background: 'rgba(255,255,255,0.08)', color: '#9ca3af', letterSpacing: '0.06em' }}
-            >
-              v1.0
+            <span style={{ fontSize: 10, color: '#6b7280', fontWeight: 600, fontFamily: 'monospace' }}>v1.0</span>
+          </div>
+        </div>
+
+        {/* Clinic chip */}
+        <div className="px-3 py-3" style={{ borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
+          <div style={{ fontSize: 9, color: '#6b7280', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 6 }}>
+            Project
+          </div>
+          <div className="flex items-center justify-between gap-2 px-2.5 py-2 rounded-lg" style={{ background: 'rgba(255,255,255,0.05)' }}>
+            <span style={{ fontSize: 12, color: '#e5e7eb', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              {clinic?.name || 'DermaCare Clinic'}
+            </span>
+            <span className="badge-green shrink-0" style={{ fontSize: 9, background: 'rgba(34,197,94,0.15)', borderColor: 'rgba(34,197,94,0.3)', color: '#4ade80', padding: '1px 6px' }}>
+              PRO
             </span>
           </div>
         </div>
 
-        {/* Project Info */}
-        <div className="px-4 py-3" style={{ borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
-          <p style={{ fontSize: 9, color: '#6b7280', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 4 }}>
-            PROJECT
-          </p>
-          <div className="flex items-center justify-between gap-1.5">
-            <p
-              className="text-white font-semibold truncate"
-              style={{ fontSize: 12 }}
-            >
-              {clinic?.name || 'DermaCare Clinic'}
-            </p>
-            <span className="badge-green shrink-0" style={{ fontSize: 8 }}>PRO</span>
-          </div>
-        </div>
-
-        {/* Nav */}
-        <nav className="flex-1 px-2.5 py-3 space-y-0.5 overflow-y-auto no-scrollbar">
-          {NAV.map(item => {
-            const Icon = item.icon;
-            const isActive = activeTab === item.id;
-            return (
-              <button
-                key={item.id}
-                onClick={() => { setActiveTab(item.id); setIsOpen(false); }}
-                className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-left transition-all ${
-                  isActive
-                    ? 'nav-active'
-                    : 'text-gray-400 hover:text-white hover:bg-white/5'
-                }`}
-                style={{ fontSize: 13, fontWeight: isActive ? 600 : 500 }}
-              >
-                <Icon
-                  style={{ width: 15, height: 15, flexShrink: 0, opacity: isActive ? 1 : 0.7 }}
-                />
-                {item.label}
-              </button>
-            );
-          })}
+        {/* Nav groups */}
+        <nav className="flex-1 overflow-y-auto no-scrollbar px-2.5 py-3 space-y-4">
+          {GROUPS.map(group => (
+            <div key={group.label}>
+              <div style={{ fontSize: 9, color: '#4b5563', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', padding: '0 10px 6px' }}>
+                {group.label}
+              </div>
+              <div className="space-y-0.5">
+                {group.ids.map(id => {
+                  const item = navMap[id];
+                  if (!item) return null;
+                  const Icon = item.icon;
+                  const isActive = activeTab === id;
+                  return (
+                    <button
+                      key={id}
+                      onClick={() => { setActiveTab(id); setIsOpen(false); }}
+                      className={`sidebar-item ${isActive ? 'active' : ''}`}
+                    >
+                      <Icon style={{ width: 14, height: 14, flexShrink: 0, opacity: isActive ? 1 : 0.6 }} />
+                      <span style={{ flex: 1 }}>{item.label}</span>
+                      {item.live && (
+                        <span className="live-dot" style={{ width: 6, height: 6, flexShrink: 0 }} />
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
         </nav>
 
-        {/* Bottom — live status */}
-        <div className="px-4 py-4" style={{ borderTop: '1px solid rgba(255,255,255,0.07)' }}>
-          <div className="flex items-center gap-2">
-            <span className="relative flex h-2 w-2 shrink-0">
-              <span
-                className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75"
-                style={{ background: '#22c55e' }}
-              />
-              <span
-                className="relative inline-flex rounded-full h-2 w-2"
-                style={{ background: '#22c55e' }}
-              />
-            </span>
-            <span style={{ fontSize: 11, color: '#9ca3af' }}>AI Webhook Active</span>
+        {/* Footer */}
+        <div className="px-3 py-3" style={{ borderTop: '1px solid rgba(255,255,255,0.07)' }}>
+          <div className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg" style={{ background: 'rgba(34,197,94,0.08)' }}>
+            <span className="live-dot" style={{ width: 7, height: 7, flexShrink: 0 }} />
+            <div>
+              <p style={{ fontSize: 11, color: '#e5e7eb', fontWeight: 600 }}>AI Webhook Active</p>
+              <p style={{ fontSize: 10, color: '#6b7280', fontFamily: 'monospace', marginTop: 1 }}>WhatsApp Cloud v19</p>
+            </div>
           </div>
         </div>
       </aside>
