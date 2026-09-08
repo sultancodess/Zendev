@@ -61,10 +61,11 @@ export function AppContent() {
   };
 
   return (
-    <div className="min-h-screen bg-[#05070B] text-slate-100 flex relative overflow-x-hidden selection:bg-emerald-500 selection:text-black">
-      {/* Subtle Ambient Glow Background Orbs */}
-      <div className="fixed top-0 right-1/4 w-96 h-96 bg-emerald-500/5 rounded-full blur-3xl pointer-events-none -z-10" />
-      <div className="fixed bottom-0 left-1/3 w-80 h-80 bg-teal-500/5 rounded-full blur-3xl pointer-events-none -z-10" />
+    <div className="min-h-screen bg-dark-950 text-slate-100 flex relative overflow-x-hidden">
+      {/* Ambient Orbs */}
+      <div className="fixed top-0 left-1/2 -translate-x-1/2 w-[700px] h-[500px] bg-emerald-500/4 rounded-full blur-[100px] pointer-events-none -z-10" />
+      <div className="fixed top-0 right-0 w-[400px] h-[400px] bg-emerald-600/3 rounded-full blur-[80px] pointer-events-none -z-10" />
+      <div className="fixed bottom-0 left-0 w-[350px] h-[350px] bg-teal-500/3 rounded-full blur-[80px] pointer-events-none -z-10" />
 
       {/* Sidebar */}
       <Sidebar
@@ -74,7 +75,7 @@ export function AppContent() {
         setIsOpen={setSidebarOpen}
       />
 
-      {/* Main Content Area */}
+      {/* Main Content */}
       <div className="flex-1 lg:pl-64 flex flex-col min-w-0">
         <Header
           onMenuClick={() => setSidebarOpen(true)}
@@ -82,7 +83,7 @@ export function AppContent() {
           pendingHandoffCount={pendingHandoffs}
         />
 
-        <main className="flex-1 p-4 sm:p-6 max-w-7xl w-full mx-auto">
+        <main key={activeTab} className="flex-1 p-4 sm:p-5 max-w-[1380px] w-full mx-auto">
           {renderActivePage()}
         </main>
       </div>

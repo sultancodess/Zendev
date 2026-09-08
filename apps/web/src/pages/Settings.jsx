@@ -1,62 +1,74 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Settings as SettingsIcon,
-  FileSpreadsheet,
-  RefreshCw,
-  CheckCircle2,
-  XCircle,
-  Shield,
-  Building,
-  Key,
-  ExternalLink,
-  ToggleLeft,
-  ToggleRight
+  Settings as SettingsIcon, FileSpreadsheet, RefreshCw,
+  Shield, Building, ToggleLeft, ToggleRight, CheckCircle2,
 } from 'lucide-react';
 import { api } from '../services/api.js';
 
+function SectionCard({ title, subtitle, icon: Icon, iconColor = 'text-emerald-400', iconBg = 'bg-emerald-500/15', children, className = '' }) {
+  return (
+    <div className={`glass-card rounded-2xl overflow-hidden ${className}`}>
+      <div
+        className="px-5 py-4 flex items-center gap-3"
+        style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', background: 'rgba(0,0,0,0.2)' }}
+      >
+        <div className={`w-9 h-9 rounded-xl ${iconBg} border border-white/10 flex items-center justify-center shrink-0`}>
+          <Icon className={`w-4.5 h-4.5 ${iconColor}`} style={{ width: '1.1rem', height: '1.1rem' }} />
+        </div>
+        <div>
+          <h4 className="font-bold text-sm text-white">{title}</h4>
+          {subtitle && <p className="text-[10px] text-slate-500 mt-0.5">{subtitle}</p>}
+        </div>
+      </div>
+      <div className="p-5">{children}</div>
+    </div>
+  );
+}
+
+function FormField({ label, hint, children }) {
+  return (
+    <div>
+      <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-1.5">{label}</label>
+      {children}
+      {hint && <p className="text-[10px] text-slate-600 mt-1">{hint}</p>}
+    </div>
+  );
+}
+
+const inputCls = 'w-full input-dark text-[11px]';
+
 export function Settings() {
   const [googleDocsStatus, setGoogleDocsStatus] = useState(null);
-  const [docIdInput, setDocIdInput] = useState('');
-  const [sheetExportData, setSheetExportData] = useState(null);
-  const [auditLogs, setAuditLogs] = useState([]);
-  const [clinicInfo, setClinicInfo] = useState({
-    name: '',
-    phone: '',
-    email: '',
-    address: '',
-    working_hours: ''
-  });
-  const [syncing, setSyncing] = useState(false);
-  const [toggling, setToggling] = useState(false);
+  const [docIdInput,       setDocIdInput]        = useState('');
+  const [auditLogs,        setAuditLogs]         = useState([]);
+  const [clinicInfo,       setClinicInfo]        = useState({ name: '', phone: '', email: '', address: '', working_hours: '' });
+  const [syncing,          setSyncing]           = useState(false);
+  const [toggling,         setToggling]          = useState(false);
+  const [saved,            setSaved]             = useState(false);
 
   const loadData = async () => {
     try {
-      const [gStatus, clinic, logs, sheetData] = await Promise.all([
+      const [gStatus, clinic, logs] = await Promise.all([
         api.getGoogleDocsStatus(),
         api.getClinic(),
         api.getAuditLogs(),
-        api.exportLiveSheet()
       ]);
       setGoogleDocsStatus(gStatus);
       setDocIdInput(gStatus.doc_id || '');
       setClinicInfo(clinic);
       setAuditLogs(logs);
-      setSheetExportData(sheetData);
     } catch (err) {
-      console.error('Failed to load settings data', err);
+      console.error('Failed to load settings:', err);
     }
   };
 
-  useEffect(() => {
-    loadData();
-  }, []);
+  useEffect(() => { loadData(); }, []);
 
   const handleToggleGoogleDocs = async () => {
     if (toggling) return;
     setToggling(true);
     try {
-      const newEnabled = !googleDocsStatus?.enabled;
-      await api.toggleGoogleDocsSync(newEnabled);
+      await api.toggleGoogleDocsSync(!googleDocsStatus?.enabled);
       await loadData();
     } catch (err) {
       alert('Toggle failed: ' + err.message);
@@ -73,7 +85,7 @@ export function Settings() {
       alert(res.message);
       await loadData();
     } catch (err) {
-      alert('Knowledge sync failed: ' + err.message);
+      alert('Sync failed: ' + err.message);
     } finally {
       setSyncing(false);
     }
@@ -83,7 +95,8 @@ export function Settings() {
     e.preventDefault();
     try {
       await api.updateClinic(clinicInfo);
-      alert('Clinic details updated successfully.');
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2500);
       await loadData();
     } catch (err) {
       alert('Update failed: ' + err.message);
@@ -93,215 +106,175 @@ export function Settings() {
   const isEnabled = googleDocsStatus?.enabled;
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="bg-[#0A0F18] p-5 rounded-2xl border border-zinc-800/90 shadow-[0_4px_20px_rgba(0,0,0,0.5)] flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-xl bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
-            <SettingsIcon className="w-5 h-5" />
-          </div>
-          <div>
-            <h3 className="font-bold text-base text-white">EvilChat Settings & Integrations</h3>
-            <p className="text-xs text-slate-400">
-              Google Docs dashboard sync, Meta WhatsApp credentials, and compliance audit trail
-            </p>
-          </div>
+    <div className="space-y-5 page-enter">
+
+      {/* ── Page Header ── */}
+      <div className="glass-card rounded-2xl p-5 flex items-center gap-3">
+        <div className="w-10 h-10 rounded-xl bg-emerald-500/15 border border-emerald-500/25 flex items-center justify-center shrink-0">
+          <SettingsIcon className="w-5 h-5 text-emerald-400" />
+        </div>
+        <div>
+          <h2 className="font-bold text-base text-white">EvilChat Settings & Integrations</h2>
+          <p className="text-[10px] text-slate-500 mt-0.5">Google Docs sync, Meta WhatsApp credentials, clinic config & DPDP audit trail</p>
         </div>
       </div>
 
-      {/* Google Docs Dashboard & Live Sync Card */}
-      <div className="bg-[#0A0F18] rounded-2xl border border-zinc-800/90 shadow-md overflow-hidden">
-        <div className="p-5 border-b border-zinc-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-gradient-to-r from-zinc-900/90 to-[#0A0F18]">
+      {/* ── Google Docs Integration ── */}
+      <SectionCard
+        title="Google Docs & Sheets Integration"
+        subtitle="Sync clinic knowledge from Google Docs & stream live leads to Google Sheets"
+        icon={FileSpreadsheet}
+        iconColor="text-blue-400"
+        iconBg="bg-blue-500/15"
+      >
+        {/* Status + Toggle row */}
+        <div className="flex items-center justify-between mb-5 p-3 rounded-xl border border-white/5 bg-dark-900/60">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center border border-blue-500/30">
-              <FileSpreadsheet className="w-5 h-5" />
-            </div>
+            <div
+              className={`w-2.5 h-2.5 rounded-full ${isEnabled ? 'bg-emerald-400 animate-pulse' : 'bg-slate-600'}`}
+            />
             <div>
-              <div className="flex items-center gap-2">
-                <h4 className="font-bold text-sm text-white">Google Docs & Sheets Integration</h4>
-                <span
-                  className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                    isEnabled
-                      ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
-                      : 'bg-zinc-800 text-slate-400 border border-zinc-700'
-                  }`}
-                >
-                  {isEnabled ? 'ENABLED (ENV FLAG ON)' : 'DISABLED'}
-                </span>
-              </div>
-              <p className="text-xs text-slate-400">
-                Sync clinic knowledge directly from Google Docs & stream live leads into Google Sheets
-              </p>
-            </div>
-          </div>
-
-          {/* Toggle Switch */}
-          <button
-            onClick={handleToggleGoogleDocs}
-            className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition-all ${
-              isEnabled
-                ? 'bg-emerald-500 hover:bg-emerald-400 text-black shadow-[0_0_12px_rgba(34,197,94,0.3)] font-extrabold'
-                : 'bg-zinc-800 hover:bg-zinc-700 text-slate-300 border border-zinc-700'
-            }`}
-          >
-            {isEnabled ? <ToggleRight className="w-4 h-4" /> : <ToggleLeft className="w-4 h-4" />}
-            <span>{isEnabled ? 'Integration Active' : 'Enable Integration'}</span>
-          </button>
-        </div>
-
-        <div className="p-5 space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1">
-                Google Doc Knowledge Base ID / URL
-              </label>
-              <input
-                type="text"
-                value={docIdInput}
-                onChange={(e) => setDocIdInput(e.target.value)}
-                placeholder="e.g. 1_sample_google_doc_id_for_clinic_knowledge_base"
-                className="w-full px-3.5 py-2 text-xs rounded-xl border border-zinc-800 bg-zinc-900 text-white focus:ring-2 focus:ring-emerald-500 font-mono"
-              />
-              <p className="text-[11px] text-slate-500 mt-1">
-                Configured via <code className="bg-zinc-800 px-1 py-0.5 rounded text-emerald-400">ENABLE_GOOGLE_DOCS_SYNC</code> in .env
-              </p>
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1">
-                Connected Google Sheet Live Stream ID
-              </label>
-              <input
-                type="text"
-                readOnly
-                value={googleDocsStatus?.sheet_id || 'sheet_derma_live_leads'}
-                className="w-full px-3.5 py-2 text-xs rounded-xl border border-zinc-800 bg-zinc-950 text-slate-400 font-mono"
-              />
-              <p className="text-[11px] text-slate-500 mt-1">
-                Automatically exports leads & appointments in real-time
-              </p>
-            </div>
-          </div>
-
-          <div className="pt-3 flex flex-wrap items-center justify-between gap-3 border-t border-zinc-800">
-            <div className="text-xs text-slate-400">
-              <span>Last Synced: </span>
-              <strong className="text-white">
+              <p className="text-xs font-bold text-slate-200">{isEnabled ? 'Integration Active' : 'Integration Disabled'}</p>
+              <p className="text-[10px] text-slate-500">
+                {googleDocsStatus?.extracted_faqs_count || 0} FAQs synced ·{' '}
+                Last sync:{' '}
                 {googleDocsStatus?.last_synced_at
                   ? new Date(googleDocsStatus.last_synced_at).toLocaleString()
                   : 'Never'}
-              </strong>
-              <span className="ml-2 text-emerald-400 font-medium">({googleDocsStatus?.extracted_faqs_count || 0} FAQs synchronized)</span>
+              </p>
             </div>
-
-            <button
-              onClick={handleSyncKnowledge}
-              disabled={!isEnabled || syncing}
-              className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white font-bold text-xs flex items-center gap-1.5 shadow-sm transition-all"
-            >
-              <RefreshCw className={`w-3.5 h-3.5 ${syncing ? 'animate-spin' : ''}`} />
-              <span>{syncing ? 'Synchronizing...' : 'Sync Knowledge Base Now'}</span>
-            </button>
           </div>
+
+          <button
+            onClick={handleToggleGoogleDocs}
+            className={`px-3.5 py-1.5 rounded-xl text-[11px] font-extrabold flex items-center gap-2 transition-all ${
+              isEnabled
+                ? 'btn-glow bg-emerald-500 text-black'
+                : 'bg-dark-750 text-slate-400 hover:text-white border border-white/10 hover:border-white/20'
+            }`}
+          >
+            {isEnabled ? <ToggleRight className="w-4 h-4" /> : <ToggleLeft className="w-4 h-4" />}
+            {isEnabled ? 'Enabled' : 'Enable'}
+          </button>
         </div>
-      </div>
 
-      {/* Clinic Details Form */}
-      <div className="bg-[#0A0F18] rounded-2xl border border-zinc-800/90 shadow-md p-5 space-y-4">
-        <h4 className="font-bold text-sm text-white flex items-center gap-2">
-          <Building className="w-4 h-4 text-emerald-400" />
-          <span>Clinic Contact & Physical Details</span>
-        </h4>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <FormField
+            label="Google Doc Knowledge Base ID"
+            hint={<>Configured via <code className="bg-dark-850 px-1 py-0.5 rounded text-emerald-400 text-[9px] mono">ENABLE_GOOGLE_DOCS_SYNC</code> in .env</>}
+          >
+            <input
+              type="text"
+              value={docIdInput}
+              onChange={e => setDocIdInput(e.target.value)}
+              placeholder="1_sample_google_doc_id_for_clinic_knowledge_base"
+              className={inputCls + ' font-mono'}
+            />
+          </FormField>
 
-        <form onSubmit={handleSaveClinic} className="space-y-3.5">
+          <FormField
+            label="Connected Google Sheet ID"
+            hint="Exports leads & appointments in real-time"
+          >
+            <input
+              type="text"
+              readOnly
+              value={googleDocsStatus?.sheet_id || 'sheet_derma_live_leads'}
+              className={inputCls + ' font-mono opacity-60 cursor-default'}
+            />
+          </FormField>
+        </div>
+
+        <div className="flex justify-end">
+          <button
+            onClick={handleSyncKnowledge}
+            disabled={!isEnabled || syncing}
+            className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 disabled:opacity-40 text-white font-bold text-[11px] flex items-center gap-1.5 transition-all"
+            style={{ boxShadow: '0 0 14px rgba(59,130,246,0.25)' }}
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${syncing ? 'animate-spin' : ''}`} />
+            {syncing ? 'Synchronising…' : 'Sync Knowledge Base Now'}
+          </button>
+        </div>
+      </SectionCard>
+
+      {/* ── Clinic Details ── */}
+      <SectionCard
+        title="Clinic Contact & Physical Details"
+        subtitle="WhatsApp bot uses these details to respond to location & contact queries"
+        icon={Building}
+      >
+        <form onSubmit={handleSaveClinic} className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1">Clinic Name</label>
-              <input
-                type="text"
-                required
-                value={clinicInfo.name || ''}
-                onChange={(e) => setClinicInfo({ ...clinicInfo, name: e.target.value })}
-                className="w-full px-3.5 py-2 text-xs rounded-xl border border-zinc-800 bg-zinc-900 text-white focus:ring-2 focus:ring-emerald-500"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1">Official WhatsApp Number</label>
-              <input
-                type="text"
-                required
-                value={clinicInfo.phone || ''}
-                onChange={(e) => setClinicInfo({ ...clinicInfo, phone: e.target.value })}
-                className="w-full px-3.5 py-2 text-xs rounded-xl border border-zinc-800 bg-zinc-900 text-emerald-400 font-mono"
-              />
-            </div>
+            <FormField label="Clinic Name">
+              <input type="text" required value={clinicInfo.name || ''} onChange={e => setClinicInfo({ ...clinicInfo, name: e.target.value })} className={inputCls} />
+            </FormField>
+            <FormField label="Official WhatsApp Number">
+              <input type="text" required value={clinicInfo.phone || ''} onChange={e => setClinicInfo({ ...clinicInfo, phone: e.target.value })} className={inputCls + ' font-mono text-emerald-400'} />
+            </FormField>
           </div>
 
-          <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1">Clinic Address & Landmarks</label>
-            <input
-              type="text"
-              required
-              value={clinicInfo.address || ''}
-              onChange={(e) => setClinicInfo({ ...clinicInfo, address: e.target.value })}
-              className="w-full px-3.5 py-2 text-xs rounded-xl border border-zinc-800 bg-zinc-900 text-white"
-            />
-          </div>
+          <FormField label="Clinic Address & Landmarks">
+            <input type="text" value={clinicInfo.address || ''} onChange={e => setClinicInfo({ ...clinicInfo, address: e.target.value })} className={inputCls} />
+          </FormField>
 
-          <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1">Working Hours Information</label>
-            <input
-              type="text"
-              value={clinicInfo.working_hours || ''}
-              onChange={(e) => setClinicInfo({ ...clinicInfo, working_hours: e.target.value })}
-              className="w-full px-3.5 py-2 text-xs rounded-xl border border-zinc-800 bg-zinc-900 text-white"
-            />
-          </div>
+          <FormField label="Working Hours">
+            <input type="text" value={clinicInfo.working_hours || ''} onChange={e => setClinicInfo({ ...clinicInfo, working_hours: e.target.value })} placeholder="e.g. Mon–Sat: 10am–7pm" className={inputCls} />
+          </FormField>
 
-          <div className="flex justify-end pt-2">
+          <div className="flex justify-end pt-1">
             <button
               type="submit"
-              className="px-5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-extrabold text-xs shadow-[0_0_15px_rgba(34,197,94,0.3)]"
+              className="btn-glow px-5 py-2 rounded-xl bg-emerald-500 text-black font-extrabold text-[11px] flex items-center gap-2"
             >
-              Update Clinic Details
+              {saved ? (
+                <><CheckCircle2 className="w-3.5 h-3.5" />Saved!</>
+              ) : (
+                'Update Clinic Details'
+              )}
             </button>
           </div>
         </form>
-      </div>
+      </SectionCard>
 
-      {/* Audit Log / DPDP Compliance */}
-      <div className="bg-[#0A0F18] rounded-2xl border border-zinc-800/90 shadow-md p-5 space-y-4">
-        <h4 className="font-bold text-sm text-white flex items-center gap-2">
-          <Shield className="w-4 h-4 text-emerald-400" />
-          <span>Security Audit Trail (DPDP Act Compliance Ready)</span>
-        </h4>
-        <p className="text-xs text-slate-400">
-          Immutable logs tracking staff takeovers, appointment bookings, and configuration changes
-        </p>
-
-        <div className="bg-zinc-950 rounded-xl border border-zinc-800 overflow-x-auto max-h-60">
-          <table className="w-full text-left text-xs font-mono">
-            <thead className="bg-zinc-900 text-slate-400 font-semibold border-b border-zinc-800">
-              <tr>
-                <th className="p-2.5">Timestamp</th>
-                <th className="p-2.5">Action</th>
-                <th className="p-2.5">User</th>
-                <th className="p-2.5">Entity</th>
+      {/* ── Audit Log ── */}
+      <SectionCard
+        title="Security Audit Trail"
+        subtitle="Immutable DPDP Act compliance logs — staff takeovers, bookings, config changes"
+        icon={Shield}
+      >
+        <div
+          className="rounded-xl overflow-hidden border border-white/5"
+          style={{ background: 'rgba(0,0,0,0.3)', maxHeight: '16rem', overflowY: 'auto' }}
+        >
+          <table className="w-full text-left">
+            <thead>
+              <tr style={{ background: 'rgba(0,0,0,0.4)', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                {['Timestamp','Action','User','Entity'].map(h => (
+                  <th key={h} className="p-2.5 text-[9px] font-extrabold text-slate-600 uppercase tracking-widest">{h}</th>
+                ))}
               </tr>
             </thead>
-            <tbody className="divide-y divide-zinc-850 text-slate-300">
-              {auditLogs.map((log) => (
-                <tr key={log.id} className="hover:bg-zinc-900/60">
-                  <td className="p-2.5 text-slate-500">{new Date(log.created_at).toLocaleString()}</td>
-                  <td className="p-2.5 font-semibold text-emerald-400">{log.action}</td>
-                  <td className="p-2.5 text-slate-300">{log.user_id}</td>
-                  <td className="p-2.5 text-slate-400">{log.entity}</td>
+            <tbody>
+              {auditLogs.map((log, i) => (
+                <tr
+                  key={log.id}
+                  className="hover:bg-white/2 transition-colors"
+                  style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}
+                >
+                  <td className="p-2.5 text-[10px] text-slate-500 font-mono whitespace-nowrap">{new Date(log.created_at).toLocaleString()}</td>
+                  <td className="p-2.5 text-[10px] text-emerald-400 font-bold">{log.action}</td>
+                  <td className="p-2.5 text-[10px] text-slate-300">{log.user_id}</td>
+                  <td className="p-2.5 text-[10px] text-slate-500">{log.entity}</td>
                 </tr>
               ))}
+              {auditLogs.length === 0 && (
+                <tr><td colSpan={4} className="p-6 text-center text-xs text-slate-600">No audit logs yet</td></tr>
+              )}
             </tbody>
           </table>
         </div>
-      </div>
+      </SectionCard>
     </div>
   );
 }
