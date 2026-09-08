@@ -1,115 +1,134 @@
 import React, { useState, useEffect } from 'react';
-import { BarChart3, TrendingUp, Users, CalendarCheck, UserX, AlertCircle, Sparkles } from 'lucide-react';
+import { BarChart3, TrendingUp, Users, CalendarCheck, UserX, AlertCircle, Sparkles, Activity } from 'lucide-react';
 import { api } from '../services/api.js';
+
+const KPI_CARDS = (rates) => [
+  { label: 'Qualification Rate', value: rates.qualificationRate || '0.0%', sub: 'Qualified Leads / Inquiries', color: '#14b8a6', glow: 'rgba(20,184,166,0.2)' },
+  { label: 'Booking Rate',       value: rates.bookingRate || '0.0%',       sub: 'Booked / Total Leads',        color: '#22c55e', glow: 'rgba(34,197,94,0.2)' },
+  { label: 'Completion Rate',    value: rates.completionRate || '0.0%',    sub: 'Completed / Total Booked',    color: '#4ade80', glow: 'rgba(74,222,128,0.2)' },
+  { label: 'No-Show Rate',       value: rates.noShowRate || '0.0%',        sub: 'No-Shows / Total Booked',     color: '#f59e0b', glow: 'rgba(245,158,11,0.2)' },
+];
 
 export function Analytics() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function load() {
-      try {
-        const res = await api.getAnalytics();
-        setData(res);
-      } catch (err) {
-        console.error('Failed to load analytics', err);
-      } finally {
-        setLoading(false);
-      }
-    }
-    load();
+    api.getAnalytics()
+      .then(setData)
+      .catch(console.error)
+      .finally(() => setLoading(false));
   }, []);
 
-  const overview = data?.overview || {};
-  const rates = data?.rates || {};
-  const sourceBreakdown = data?.sourceBreakdown || [];
-  const serviceBreakdown = data?.serviceBreakdown || [];
+  const rates           = data?.rates           || {};
+  const sourceBreakdown = data?.sourceBreakdown  || [];
+  const serviceBreakdown= data?.serviceBreakdown || [];
+
+  const kpiCards = KPI_CARDS(rates);
+  const srcMax   = Math.max(...sourceBreakdown.map(i => i.count), 1);
+  const svcMax   = Math.max(...serviceBreakdown.map(i => i.count), 1);
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="bg-[#0A0F18] p-5 rounded-2xl border border-zinc-800/90 shadow-[0_4px_20px_rgba(0,0,0,0.5)] flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-xl bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
-            <BarChart3 className="w-5 h-5" />
-          </div>
-          <div>
-            <h3 className="font-bold text-base text-white">Clinic Analytics & Performance Metrics</h3>
-            <p className="text-xs text-slate-400">
-              EvilChat standard conversion rates and attribution tracking
-            </p>
-          </div>
+    <div className="space-y-6 page-enter">
+
+      {/* ── Header ── */}
+      <div className="glass-card rounded-2xl p-5 flex items-center gap-4">
+        <div className="w-10 h-10 rounded-xl bg-emerald-500/15 border border-emerald-500/25 flex items-center justify-center shrink-0">
+          <BarChart3 className="w-5 h-5 text-emerald-400" />
+        </div>
+        <div>
+          <h2 className="font-bold text-base text-white">Analytics & Performance Metrics</h2>
+          <p className="text-xs text-slate-500 mt-0.5">PRD standard conversion rates and live attribution tracking</p>
         </div>
       </div>
 
-      {/* KPI Rate Formula Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-[#0A0F18] p-5 rounded-2xl border border-zinc-800/90 shadow-md space-y-2">
-          <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Qualification Rate</span>
-          <div className="text-3xl font-extrabold text-teal-400">{rates.qualificationRate || '0.0%'}</div>
-          <p className="text-[11px] text-slate-500">Qualified Leads / Total Inquiries</p>
-        </div>
-
-        <div className="bg-[#0A0F18] p-5 rounded-2xl border border-zinc-800/90 shadow-md space-y-2">
-          <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Booking Rate</span>
-          <div className="text-3xl font-extrabold text-emerald-400">{rates.bookingRate || '0.0%'}</div>
-          <p className="text-[11px] text-slate-500">Booked Appointments / Total Leads</p>
-        </div>
-
-        <div className="bg-[#0A0F18] p-5 rounded-2xl border border-zinc-800/90 shadow-md space-y-2">
-          <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Completion Rate</span>
-          <div className="text-3xl font-extrabold text-lime-400">{rates.completionRate || '0.0%'}</div>
-          <p className="text-[11px] text-slate-500">Completed / Total Booked</p>
-        </div>
-
-        <div className="bg-[#0A0F18] p-5 rounded-2xl border border-zinc-800/90 shadow-md space-y-2">
-          <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">No-Show Rate</span>
-          <div className="text-3xl font-extrabold text-amber-400">{rates.noShowRate || '0.0%'}</div>
-          <p className="text-[11px] text-slate-500">No-Shows / Total Booked</p>
-        </div>
+      {/* ── KPI Cards ── */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        {kpiCards.map(card => (
+          <div
+            key={card.label}
+            className="stat-card glass-card rounded-2xl p-5 relative overflow-hidden"
+          >
+            <div
+              className="absolute -top-6 -right-6 w-20 h-20 rounded-full blur-2xl opacity-40"
+              style={{ background: card.glow }}
+            />
+            <p className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-2">{card.label}</p>
+            <div
+              className="text-3xl font-black tracking-tight leading-none"
+              style={{ color: card.color, textShadow: `0 0 20px ${card.glow}` }}
+            >
+              {card.value}
+            </div>
+            <p className="text-[10px] text-slate-600 mt-2">{card.sub}</p>
+          </div>
+        ))}
       </div>
 
-      {/* Breakdowns Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {/* ── Breakdown Charts ── */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+
         {/* Source Attribution */}
-        <div className="bg-[#0A0F18] p-6 rounded-2xl border border-zinc-800/90 shadow-md">
-          <h4 className="font-bold text-sm text-white mb-4">Lead Source Attribution</h4>
-          <div className="space-y-3">
-            {sourceBreakdown.map((item, idx) => (
-              <div key={idx}>
-                <div className="flex justify-between text-xs font-semibold text-slate-300 mb-1">
-                  <span>{item.name}</span>
-                  <span className="text-emerald-400 font-mono">{item.count} leads</span>
+        <div className="glass-card rounded-2xl p-6">
+          <h4 className="font-bold text-sm text-white mb-1 flex items-center gap-2">
+            <Activity className="w-4 h-4 text-emerald-400" />
+            Lead Source Attribution
+          </h4>
+          <p className="text-[10px] text-slate-500 mb-5">Where your patients find you</p>
+          <div className="space-y-4">
+            {sourceBreakdown.map((item, i) => {
+              const pct = Math.round((item.count / srcMax) * 100);
+              return (
+                <div key={i}>
+                  <div className="flex justify-between text-xs mb-1.5">
+                    <span className="font-semibold text-slate-300">{item.name}</span>
+                    <span className="font-extrabold text-emerald-400 mono">{item.count} leads</span>
+                  </div>
+                  <div className="h-2 rounded-full bg-dark-800 overflow-hidden border border-white/5">
+                    <div
+                      className="h-full rounded-full transition-all duration-1000"
+                      style={{
+                        width: `${pct}%`,
+                        background: 'linear-gradient(90deg, #059669, #22c55e, #4ade80)',
+                        boxShadow: '0 0 10px rgba(34,197,94,0.4)',
+                      }}
+                    />
+                  </div>
                 </div>
-                <div className="w-full bg-zinc-900 rounded-full h-2.5 overflow-hidden border border-zinc-800">
-                  <div
-                    className="bg-gradient-to-r from-emerald-600 to-emerald-400 h-full rounded-full shadow-[0_0_10px_rgba(34,197,94,0.3)]"
-                    style={{ width: `${Math.min(100, item.count * 20)}%` }}
-                  />
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 
         {/* Service Popularity */}
-        <div className="bg-[#0A0F18] p-6 rounded-2xl border border-zinc-800/90 shadow-md">
-          <h4 className="font-bold text-sm text-white mb-4">Treatment Demand Distribution</h4>
-          <div className="space-y-3">
-            {serviceBreakdown.map((item, idx) => (
-              <div key={idx}>
-                <div className="flex justify-between text-xs font-semibold text-slate-300 mb-1">
-                  <span className="truncate pr-2">{item.name}</span>
-                  <span className="shrink-0 text-teal-400 font-mono">{item.count} enquiries</span>
+        <div className="glass-card rounded-2xl p-6">
+          <h4 className="font-bold text-sm text-white mb-1 flex items-center gap-2">
+            <TrendingUp className="w-4 h-4 text-teal-400" />
+            Treatment Demand Distribution
+          </h4>
+          <p className="text-[10px] text-slate-500 mb-5">Most enquired services</p>
+          <div className="space-y-4">
+            {serviceBreakdown.map((item, i) => {
+              const pct = Math.round((item.count / svcMax) * 100);
+              return (
+                <div key={i}>
+                  <div className="flex justify-between text-xs mb-1.5">
+                    <span className="font-semibold text-slate-300 truncate pr-3">{item.name}</span>
+                    <span className="font-extrabold text-teal-400 mono shrink-0">{item.count} enquiries</span>
+                  </div>
+                  <div className="h-2 rounded-full bg-dark-800 overflow-hidden border border-white/5">
+                    <div
+                      className="h-full rounded-full transition-all duration-1000"
+                      style={{
+                        width: `${pct}%`,
+                        background: 'linear-gradient(90deg, #0d9488, #14b8a6)',
+                        boxShadow: '0 0 10px rgba(20,184,166,0.4)',
+                      }}
+                    />
+                  </div>
                 </div>
-                <div className="w-full bg-zinc-900 rounded-full h-2.5 overflow-hidden border border-zinc-800">
-                  <div
-                    className="bg-gradient-to-r from-teal-500 to-emerald-400 h-full rounded-full shadow-[0_0_10px_rgba(20,184,166,0.3)]"
-                    style={{ width: `${Math.min(100, item.count * 25)}%` }}
-                  />
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </div>
