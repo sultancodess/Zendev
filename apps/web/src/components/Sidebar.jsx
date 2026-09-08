@@ -2,7 +2,7 @@ import React from 'react';
 import {
   LayoutDashboard, MessageSquare, Users, Calendar,
   Sparkles, UserCheck, HelpCircle, BarChart3,
-  Smartphone, Settings, ChevronRight,
+  Smartphone, Settings, AlertCircle, ChevronRight,
 } from 'lucide-react';
 import { Logo } from './Logo.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
@@ -27,17 +27,15 @@ const GROUPS = [
   { label: 'Tools',      ids: ['simulator','settings'] },
 ];
 
-export function Sidebar({ activeTab, setActiveTab, isOpen, setIsOpen }) {
+export function Sidebar({ activeTab, setActiveTab, isOpen, setIsOpen, pendingHandoffCount = 0 }) {
   const { clinic } = useAuth();
-
   const navMap = Object.fromEntries(NAV.map(n => [n.id, n]));
 
   return (
     <>
       {isOpen && (
         <div
-          className="fixed inset-0 z-40 lg:hidden"
-          style={{ background: 'rgba(0,0,0,0.5)' }}
+          className="fixed inset-0 z-40 lg:hidden bg-black/60 backdrop-blur-xs"
           onClick={() => setIsOpen(false)}
         />
       )}
@@ -47,34 +45,41 @@ export function Sidebar({ activeTab, setActiveTab, isOpen, setIsOpen }) {
           isOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
-        {/* Logo row */}
-        <div className="px-4 pt-5 pb-4" style={{ borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
+        {/* Brand / Logo */}
+        <div className="px-4 pt-5 pb-4 border-b border-white/[0.07]">
           <div className="flex items-center justify-between">
-            <Logo size={30} />
-            <span style={{ fontSize: 10, color: '#6b7280', fontWeight: 600, fontFamily: 'monospace' }}>v1.0</span>
+            <Logo size={28} />
+            <span className="text-[10px] text-gray-500 font-mono font-medium px-1.5 py-0.5 rounded bg-white/[0.04]">
+              v2.4
+            </span>
           </div>
         </div>
 
         {/* Clinic chip */}
-        <div className="px-3 py-3" style={{ borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
-          <div style={{ fontSize: 9, color: '#6b7280', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 6 }}>
-            Project
+        <div className="px-3 py-3 border-b border-white/[0.07]">
+          <div className="text-[9px] text-gray-500 font-bold tracking-wider uppercase mb-1.5 px-1">
+            Workspace
           </div>
-          <div className="flex items-center justify-between gap-2 px-2.5 py-2 rounded-lg" style={{ background: 'rgba(255,255,255,0.05)' }}>
-            <span style={{ fontSize: 12, color: '#e5e7eb', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-              {clinic?.name || 'DermaCare Clinic'}
-            </span>
-            <span className="badge-green shrink-0" style={{ fontSize: 9, background: 'rgba(34,197,94,0.15)', borderColor: 'rgba(34,197,94,0.3)', color: '#4ade80', padding: '1px 6px' }}>
-              PRO
+          <div className="flex items-center justify-between gap-2 px-2.5 py-2 rounded-lg bg-white/[0.04] border border-white/[0.04]">
+            <div className="min-w-0 flex-1">
+              <p className="text-xs font-semibold text-gray-200 truncate">
+                {clinic?.name || 'DermaCare Clinic'}
+              </p>
+              <p className="text-[10px] text-gray-500 truncate">
+                Indiranagar, Bangalore
+              </p>
+            </div>
+            <span className="shrink-0 text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-500/15 border border-emerald-500/30 text-emerald-400">
+              LIVE
             </span>
           </div>
         </div>
 
         {/* Nav groups */}
-        <nav className="flex-1 overflow-y-auto no-scrollbar px-2.5 py-3 space-y-4">
+        <nav className="flex-1 overflow-y-auto no-scrollbar px-2 py-3 space-y-4">
           {GROUPS.map(group => (
             <div key={group.label}>
-              <div style={{ fontSize: 9, color: '#4b5563', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', padding: '0 10px 6px' }}>
+              <div className="text-[9px] text-gray-500 font-bold tracking-wider uppercase px-2.5 mb-1">
                 {group.label}
               </div>
               <div className="space-y-0.5">
@@ -83,17 +88,25 @@ export function Sidebar({ activeTab, setActiveTab, isOpen, setIsOpen }) {
                   if (!item) return null;
                   const Icon = item.icon;
                   const isActive = activeTab === id;
+                  const isHandoffAlert = id === 'conversations' && pendingHandoffCount > 0;
+
                   return (
                     <button
                       key={id}
                       onClick={() => { setActiveTab(id); setIsOpen(false); }}
-                      className={`sidebar-item ${isActive ? 'active' : ''}`}
+                      className={`sidebar-item group ${isActive ? 'active' : ''}`}
                     >
-                      <Icon style={{ width: 14, height: 14, flexShrink: 0, opacity: isActive ? 1 : 0.6 }} />
-                      <span style={{ flex: 1 }}>{item.label}</span>
-                      {item.live && (
-                        <span className="live-dot" style={{ width: 6, height: 6, flexShrink: 0 }} />
-                      )}
+                      <Icon className={`w-4 h-4 shrink-0 transition-opacity ${isActive ? 'opacity-100 text-white' : 'opacity-60 text-gray-400 group-hover:opacity-90'}`} />
+                      <span className="flex-1 text-left truncate">{item.label}</span>
+                      
+                      {/* Alert or live indicator */}
+                      {isHandoffAlert ? (
+                        <span className="shrink-0 inline-flex items-center justify-center px-1.5 py-0.5 text-[10px] font-bold text-white bg-red-500 rounded-full animate-pulse">
+                          {pendingHandoffCount}
+                        </span>
+                      ) : item.live ? (
+                        <span className="live-dot shrink-0" />
+                      ) : null}
                     </button>
                   );
                 })}
@@ -102,13 +115,13 @@ export function Sidebar({ activeTab, setActiveTab, isOpen, setIsOpen }) {
           ))}
         </nav>
 
-        {/* Footer */}
-        <div className="px-3 py-3" style={{ borderTop: '1px solid rgba(255,255,255,0.07)' }}>
-          <div className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg" style={{ background: 'rgba(34,197,94,0.08)' }}>
-            <span className="live-dot" style={{ width: 7, height: 7, flexShrink: 0 }} />
-            <div>
-              <p style={{ fontSize: 11, color: '#e5e7eb', fontWeight: 600 }}>AI Webhook Active</p>
-              <p style={{ fontSize: 10, color: '#6b7280', fontFamily: 'monospace', marginTop: 1 }}>WhatsApp Cloud v19</p>
+        {/* Status footer */}
+        <div className="px-3 py-3 border-t border-white/[0.07] bg-black/20">
+          <div className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
+            <span className="live-dot shrink-0" />
+            <div className="min-w-0">
+              <p className="text-[11px] font-semibold text-emerald-400">WhatsApp Agent Online</p>
+              <p className="text-[10px] text-gray-400 font-mono">Webhook: 200 OK • 18ms</p>
             </div>
           </div>
         </div>

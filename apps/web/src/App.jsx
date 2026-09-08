@@ -54,6 +54,7 @@ export function AppContent() {
         setActiveTab={setActiveTab}
         isOpen={sidebarOpen}
         setIsOpen={setSidebarOpen}
+        pendingHandoffCount={pendingHandoffs}
       />
 
       {/* Main area */}
