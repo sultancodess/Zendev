@@ -76,10 +76,9 @@ export function AppContent() {
       />
 
       {/* Main Content */}
-      <div className="flex-1 lg:pl-64 flex flex-col min-w-0">
+      <div className="flex-1 lg:pl-60 flex flex-col min-w-0">
         <Header
           onMenuClick={() => setSidebarOpen(true)}
-          onOpenSimulator={() => setActiveTab('simulator')}
           pendingHandoffCount={pendingHandoffs}
         />
 
