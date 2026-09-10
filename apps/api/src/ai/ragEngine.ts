@@ -1,16 +1,16 @@
 import { vectorStore } from './vectorStore';
 import { db } from '../database/db';
-import { GoogleGenAI } from '@google/genai';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 import { config } from '../config';
 
 export class RagEngine {
   private static instance: RagEngine;
-  private aiClient: GoogleGenAI | null = null;
+  private aiClient: GoogleGenerativeAI | null = null;
 
   private constructor() {
     if (config.geminiApiKey) {
       try {
-        this.aiClient = new GoogleGenAI({ apiKey: config.geminiApiKey });
+        this.aiClient = new GoogleGenerativeAI(config.geminiApiKey);
       } catch (err) {
         console.warn('⚠️ Gemini AI client initialization deferred.');
       }
@@ -87,6 +87,7 @@ ${vectorSnippets.join('\n\n')}
 
     if (this.aiClient && config.geminiApiKey) {
       try {
+        const model = this.aiClient.getGenerativeModel({ model: config.geminiModel });
         const systemPrompt = `You are Dermo AI, an elite, warm, and professional WhatsApp assistant for ${db.getClinic().name}.
 CRITICAL GROUNDING RULES:
 1. ONLY provide facts, fees, timings, and procedures present in the provided CLINIC FACTS below.
@@ -102,13 +103,12 @@ ${contextText}`;
           .map((h) => `${h.sender}: ${h.content}`)
           .join('\n')}\n\nPatient: ${userMessage}\nDermo AI:`;
 
-        const response = await this.aiClient.models.generateContent({
-          model: config.geminiModel,
-          contents: prompt,
-        });
+        const result = await model.generateContent(prompt);
+        const response = await result.response;
+        const text = response.text();
 
-        if (response.text) {
-          return response.text.trim();
+        if (text) {
+          return text.trim();
         }
       } catch (err) {
         console.warn('⚠️ Gemini generation error, falling back to rule-grounded generator:', err);

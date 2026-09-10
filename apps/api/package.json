@@ -14,7 +14,7 @@
   "dependencies": {
     "@dermo/schemas": "*",
     "@dermo/types": "*",
-    "@google/genai": "^0.1.2",
+    "@google/generative-ai": "^0.24.0",
     "@langchain/core": "^0.3.40",
     "@langchain/google-genai": "^0.1.11",
     "bcryptjs": "^2.4.3",

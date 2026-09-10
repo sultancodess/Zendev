@@ -1,4 +1,4 @@
-import { GoogleGenAI } from '@google/genai';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 import { config } from '../config';
 import { db } from '../database/db';
 import { KnowledgeChunk } from '@dermo/types';
@@ -10,12 +10,12 @@ export interface SearchResult {
 
 export class VectorStore {
   private static instance: VectorStore;
-  private aiClient: GoogleGenAI | null = null;
+  private aiClient: GoogleGenerativeAI | null = null;
 
   private constructor() {
     if (config.geminiApiKey) {
       try {
-        this.aiClient = new GoogleGenAI({ apiKey: config.geminiApiKey });
+        this.aiClient = new GoogleGenerativeAI(config.geminiApiKey);
       } catch (err) {
         console.warn('⚠️ Could not initialize Gemini API client for embeddings, using fallback matcher.');
       }
@@ -33,13 +33,10 @@ export class VectorStore {
   async generateEmbedding(text: string): Promise<number[]> {
     if (this.aiClient && config.geminiApiKey) {
       try {
-        // Use Gemini Embeddings API
-        const response = await this.aiClient.models.embedContent({
-          model: config.geminiEmbeddingModel,
-          contents: text,
-        });
-        if (response?.embedding?.values) {
-          return response.embedding.values;
+        const model = this.aiClient.getGenerativeModel({ model: config.geminiEmbeddingModel });
+        const result = await model.embedContent(text);
+        if (result?.embedding?.values) {
+          return result.embedding.values;
         }
       } catch (e) {
         console.warn('⚠️ Gemini embedding call failed, falling back to local bag-of-words vectorizer.');
