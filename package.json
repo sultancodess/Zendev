@@ -1,0 +1,39 @@
+{
+  "name": "dermo-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Dermo — Managed AI Employee for Dermatology & Aesthetic Clinics (Monorepo)",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspaces --if-present",
+    "dev:api": "npm run dev --workspace=apps/api",
+    "dev:web": "npm run dev --workspace=apps/web",
+    "build": "npm run build --workspaces --if-present",
+    "build:api": "npm run build --workspace=apps/api",
+    "build:web": "npm run build --workspace=apps/web",
+    "type-check": "npm run type-check --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "seed": "npm run seed --workspace=apps/api",
+    "clean": "node -e \"const fs=require('fs'); ['node_modules','apps/api/dist','apps/web/.next','apps/web/dist'].forEach(d=>{if(fs.existsSync(d)) fs.rmSync(d,{recursive:true,force:true})})\""
+  },
+  "keywords": [
+    "dermo",
+    "whatsapp-ai",
+    "healthcare",
+    "langchain",
+    "gemini",
+    "pgvector",
+    "razorpay",
+    "nextjs",
+    "express"
+  ],
+  "author": "Dermo Team",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^9.1.2",
+    "typescript": "^5.8.2"
+  }
+}
