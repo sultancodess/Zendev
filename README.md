@@ -46,6 +46,5 @@ Built with **JavaScript (Node.js Express + React Vite)**.
 
 ---
 
-## 🚀 Quick Start (Development)
 
 
