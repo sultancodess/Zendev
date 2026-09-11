@@ -65,14 +65,6 @@ npm install
 npm run seed
 ```
 
-### 3. Run Dev Server (API on 4000 + Web on 5173)
-```bash
-npm run dev
-```
-
-- **Web Dashboard**: [http://localhost:5173](http://localhost:5173)
-- **API Server**: [http://localhost:4000](http://localhost:4000)
-- **WhatsApp Webhook**: [http://localhost:4000/api/webhooks/whatsapp](http://localhost:4000/api/webhooks/whatsapp)
 
 ---
 
