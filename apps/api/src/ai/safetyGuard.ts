@@ -21,7 +21,8 @@ const EMERGENCY_TERMS = [
 
 const DIAGNOSTIC_SYMPTOMS = [
   'is this skin cancer', 'melanoma', 'mole changing color', 'bleeding mole',
-  'severe infection', 'pus discharge', 'fungal diagnosis'
+  'severe infection', 'pus discharge', 'fungal diagnosis', 'fungal infection',
+  'diagnose if', 'diagnose whether', 'skin disease diagnosis'
 ];
 
 export function checkSafety(message: string): SafetyCheckResult {
