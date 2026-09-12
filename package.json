@@ -15,7 +15,9 @@
     "build:api": "npm run build --workspace=apps/api",
     "build:web": "npm run build --workspace=apps/web",
     "type-check": "npm run type-check --workspaces --if-present",
-    "test": "npm run test --workspaces --if-present",
+    "test": "npm run test --workspace=apps/api",
+    "test:eval": "npm run test:eval --workspace=apps/api",
+    "test:all": "npm run test:all --workspace=apps/api",
     "seed": "npm run seed --workspace=apps/api",
     "clean": "node -e \"const fs=require('fs'); ['node_modules','apps/api/dist','apps/web/.next','apps/web/dist'].forEach(d=>{if(fs.existsSync(d)) fs.rmSync(d,{recursive:true,force:true})})\""
   },

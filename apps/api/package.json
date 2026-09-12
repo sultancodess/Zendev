@@ -9,7 +9,9 @@
     "start": "node dist/server.js",
     "seed": "tsx src/database/seed.ts",
     "type-check": "tsc --noEmit",
-    "test": "node --test"
+    "test": "node --import tsx --test test/unit/*.test.ts test/integration/*.test.ts",
+    "test:eval": "tsx src/eval/runAiEval.ts",
+    "test:all": "node --import tsx --test test/**/*.test.ts"
   },
   "dependencies": {
     "@dermo/schemas": "*",
