@@ -176,7 +176,7 @@ export async function classifyMessage(message: string): Promise<AIClassification
 
   // 12. FAQ & Pre/Post Care
   if (
-    /(downtime|before laser|aftercare|care should i take|skin peeling|apply makeup|how long do results|painful|sun exposure|interval between|wash my hair|suitable for|safe for sensitive|mandatory before|consultation mandatory|sunscreen lagana|resume workouts|redness aati hai|bring a friend|wifi)/i.test(
+    /(downtime|before laser|aftercare|care should i take|skin peeling|apply makeup|how long do results|painful|sun exposure|interval between|wash my hair|safe for sensitive|mandatory before|consultation mandatory|sunscreen lagana|resume workouts|redness aati hai|bring a friend|wifi)/i.test(
       lower
     )
   ) {
