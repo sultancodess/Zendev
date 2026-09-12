@@ -18,7 +18,7 @@ export async function classifyMessage(message: string): Promise<AIClassification
   const lower = message.toLowerCase().trim();
 
   // 2. Emergency keywords fallback
-  if (/(emergency|severe reaction|anaphylaxis|bleeding|burn)/i.test(lower)) {
+  if (/(emergency|severe allergic reaction|anaphylaxis|bleeding|burn)/i.test(lower)) {
     return {
       intent: 'EMERGENCY_SIGNAL',
       confidence: 0.99,
@@ -43,24 +43,9 @@ export async function classifyMessage(message: string): Promise<AIClassification
     };
   }
 
-  // 4. Appointment Cancellation
+  // 4. Appointment Rescheduling (Checked before general cancellation/booking)
   if (
-    /(cancel appointment|cancel booking|cancel my|cannot come|call off|drop appointment|drop kar dijiye|cancel karne|cancel the appointment)/i.test(
-      lower
-    )
-  ) {
-    return {
-      intent: 'APPOINTMENT_CANCEL',
-      confidence: 0.95,
-      safety: 'SAFE',
-      language: detectLanguage(message),
-      extractedEntities: extractEntities(message),
-    };
-  }
-
-  // 5. Appointment Rescheduling
-  if (
-    /(reschedule|change time|change date|postpone|shift appointment|reschedule slot|postpone karke|shift my doctor)/i.test(
+    /(reschedule|change time|change date|postpone|shift appointment|reschedule slot|postpone karke|shift my doctor|time change|date change)/i.test(
       lower
     )
   ) {
@@ -73,7 +58,37 @@ export async function classifyMessage(message: string): Promise<AIClassification
     };
   }
 
-  // 6. Clinic Location / Directions / Parking
+  // 5. Payment Queries (Deposit refund, payment modes, Razorpay, etc.)
+  if (
+    /(payment mode|payment option|modes do you accept|pay via|accept hota hai|razorpay|upi|google pay|phonepe|paytm|cash at the clinic|deposit refund|invoice|insurance reimbursement|emi option|credit card aur debit|advance deposit kaise)/i.test(
+      lower
+    )
+  ) {
+    return {
+      intent: 'PAYMENT_QUERY',
+      confidence: 0.94,
+      safety: 'SAFE',
+      language: detectLanguage(message),
+      extractedEntities: extractEntities(message),
+    };
+  }
+
+  // 6. Appointment Cancellation
+  if (
+    /(cancel appointment|cancel booking|cancel my|cannot come|call off|drop appointment|drop kar dijiye|cancel karne|cancel the appointment|cancel kar)/i.test(
+      lower
+    )
+  ) {
+    return {
+      intent: 'APPOINTMENT_CANCEL',
+      confidence: 0.95,
+      safety: 'SAFE',
+      language: detectLanguage(message),
+      extractedEntities: extractEntities(message),
+    };
+  }
+
+  // 7. Clinic Location / Directions / Parking
   if (
     /(address|where are you located|location|directions|landmark|parking|koramangala|maps|pin code|which floor|close to sony world)/i.test(
       lower
@@ -88,28 +103,37 @@ export async function classifyMessage(message: string): Promise<AIClassification
     };
   }
 
-  // 7. Payment Modes, Razorpay & Advance Deposits
+  // 8. Doctor Information (Who is available for consultation / doctor profile / timings of doctor)
   if (
-    /(payment mode|payment option|modes do you accept|pay via|accept hota hai|razorpay|upi|google pay|phonepe|paytm|cash at the clinic|advance deposit|deposit refund|invoice|insurance reimbursement|emi option|credit card aur debit)/i.test(
+    /(tell me about dr|qualifications and experience|chief dermatologist|specialties of your|trichology|aesthetic surgeon|profile share|md in dermatology|medical background|specialist ke bare|dr\. priya sharma skin specialist|who is available for consultation|available on saturdays\?|ke clinic timings kya hain)/i.test(
       lower
-    )
+    ) ||
+    (/(dr\.|doctor|priya|rohan)/i.test(lower) &&
+      (lower.includes('profile') ||
+        lower.includes('specialist') ||
+        lower.includes('experience') ||
+        lower.includes('qualification') ||
+        lower.includes('who is') ||
+        lower.includes('available on saturday') ||
+        lower.includes('available on sunday')))
   ) {
     return {
-      intent: 'PAYMENT_QUERY',
-      confidence: 0.93,
+      intent: 'DOCTOR_INFORMATION',
+      confidence: 0.92,
       safety: 'SAFE',
       language: detectLanguage(message),
       extractedEntities: extractEntities(message),
     };
   }
 
-  // 8. Working Hours & Operating Timings
+  // 9. Working Hours & Operating Timings
   if (
     /(working hours|open today|closing time|clinic timing|sunday open|public holidays|open in the morning|visit at|sham ko kitne baje|until what time|timings kya hai)/i.test(
       lower
     ) &&
     !lower.includes('available slots') &&
-    !lower.includes('free slot')
+    !lower.includes('free slot') &&
+    !lower.includes('doctor ke available')
   ) {
     return {
       intent: 'WORKING_HOURS',
@@ -120,9 +144,88 @@ export async function classifyMessage(message: string): Promise<AIClassification
     };
   }
 
-  // 9. FAQ, Pre/Post-care & General Questions
+  // 10. Pricing, Discounts & Package Fees
   if (
-    /(downtime|before laser|aftercare|care should i take|skin peeling|apply makeup|how long do results|painful|sun exposure|interval between|wash my hair|suitable for|safe for sensitive|mandatory before|sunscreen lagana|resume workouts|redness aati hai|bring a friend|wifi)/i.test(
+    /(price|cost|charge|fees|how much|rate|package price|charges|deposit fee|deposit amount|kharcha|discounts for|advance deposit for booking)/i.test(
+      lower
+    )
+  ) {
+    return {
+      intent: 'PRICE_INFORMATION',
+      confidence: 0.93,
+      safety: 'SAFE',
+      language: detectLanguage(message),
+      extractedEntities: extractEntities(message),
+    };
+  }
+
+  // 11. Appointment Booking (Direct booking intents)
+  if (
+    /(book|schedule|reserve|appointment book|want a slot|book for tomorrow|fix a time|confirm my booking|reserve slot|slot book|appointment fix|booking karni|booking confirm|fix an appointment)/i.test(
+      lower
+    )
+  ) {
+    return {
+      intent: 'APPOINTMENT_BOOKING',
+      confidence: 0.94,
+      safety: 'SAFE',
+      language: detectLanguage(message),
+      extractedEntities: extractEntities(message),
+    };
+  }
+
+  // 12. Appointment Availability & Open Slots
+  if (
+    /(available slots|free slots|open timings|slots available|doctor available|free slot|koi free slot|are appointments available|check availability|open consultation slots|morning slot|available timings|pm open|am open)/i.test(
+      lower
+    ) ||
+    (/(available|slot)/i.test(lower) &&
+      !lower.includes('chemical peel') &&
+      !lower.includes('hydrafacial') &&
+      !lower.includes('laser') &&
+      !lower.includes('hi there, is anyone'))
+  ) {
+    return {
+      intent: 'APPOINTMENT_AVAILABILITY',
+      confidence: 0.92,
+      safety: 'SAFE',
+      language: detectLanguage(message),
+      extractedEntities: extractEntities(message),
+    };
+  }
+
+  // 13. Service Information
+  if (
+    /(hydrafacial|laser|hair reduction|prp|chemical peel|botox|acne|scars|pigmentation|facial|glow|treatments do you have|permanent hota hai|difference between regular facial|options are available|technology do you use|suitable for male skin)/i.test(
+      lower
+    ) &&
+    !lower.includes('downtime') &&
+    !lower.includes('before laser') &&
+    !lower.includes('aftercare') &&
+    !lower.includes('peeling kitne din') &&
+    !lower.includes('apply makeup') &&
+    !lower.includes('results of botox last') &&
+    !lower.includes('is prp painful') &&
+    !lower.includes('sun exposure') &&
+    !lower.includes('interval between') &&
+    !lower.includes('wash my hair') &&
+    !lower.includes('safe for sensitive indian') &&
+    !lower.includes('sunscreen lagana') &&
+    !lower.includes('resume workouts') &&
+    !lower.includes('redness aati hai')
+  ) {
+    return {
+      intent: 'SERVICE_INFORMATION',
+      confidence: 0.91,
+      safety: 'SAFE',
+      language: detectLanguage(message),
+      extractedEntities: extractEntities(message),
+    };
+  }
+
+  // 14. FAQ & Pre/Post Care
+  if (
+    /(downtime|before laser|aftercare|care should i take|skin peeling|apply makeup|how long do results|painful|sun exposure|interval between|wash my hair|suitable for|safe for sensitive|mandatory before|sunscreen lagana|resume workouts|redness aati hai|bring a friend|wifi|consultation mandatory)/i.test(
       lower
     )
   ) {
@@ -135,86 +238,8 @@ export async function classifyMessage(message: string): Promise<AIClassification
     };
   }
 
-  // 10. Pricing & Fees Inquiries
-  if (
-    /(price|cost|charge|fees|how much|rate|package price|charges|deposit fee|deposit amount|kharcha)/i.test(
-      lower
-    ) &&
-    !lower.includes('deposit refund')
-  ) {
-    return {
-      intent: 'PRICE_INFORMATION',
-      confidence: 0.92,
-      safety: 'SAFE',
-      language: detectLanguage(message),
-      extractedEntities: extractEntities(message),
-    };
-  }
-
-  // 11. Appointment Availability & Open Slots
-  if (
-    /(available slots|free slots|open timings|slots available|doctor available|free slot|koi free slot|available on saturday|available on sunday|are appointments available|check availability|open consultation slots)/i.test(
-      lower
-    ) ||
-    (/(available|slots)/i.test(lower) && !lower.includes('book') && !lower.includes('reserve'))
-  ) {
-    return {
-      intent: 'APPOINTMENT_AVAILABILITY',
-      confidence: 0.91,
-      safety: 'SAFE',
-      language: detectLanguage(message),
-      extractedEntities: extractEntities(message),
-    };
-  }
-
-  // 12. Appointment Booking
-  if (
-    /(book|schedule|reserve|appointment book|want a slot|book for tomorrow|fix a time|confirm my booking|reserve slot|slot book|appointment fix|booking karni|booking confirm)/i.test(
-      lower
-    )
-  ) {
-    return {
-      intent: 'APPOINTMENT_BOOKING',
-      confidence: 0.93,
-      safety: 'SAFE',
-      language: detectLanguage(message),
-      extractedEntities: extractEntities(message),
-    };
-  }
-
-  // 13. Doctor Information
-  if (
-    /(tell me about dr|qualifications and experience|chief dermatologist|specialties of your|trichology|aesthetic surgeon|profile share|md in dermatology|medical background|specialist ke bare|dr\. priya sharma skin specialist)/i.test(
-      lower
-    ) ||
-    (/(dr\.|doctor|priya|rohan)/i.test(lower) && (lower.includes('profile') || lower.includes('specialist') || lower.includes('experience') || lower.includes('qualification')))
-  ) {
-    return {
-      intent: 'DOCTOR_INFORMATION',
-      confidence: 0.91,
-      safety: 'SAFE',
-      language: detectLanguage(message),
-      extractedEntities: extractEntities(message),
-    };
-  }
-
-  // 14. Service Information
-  if (
-    /(hydrafacial|laser|hair reduction|prp|chemical peel|botox|acne|scars|pigmentation|facial|glow|treatments do you have|permanent hota hai|difference between regular facial|options are available for dark spots|technology do you use)/i.test(
-      lower
-    )
-  ) {
-    return {
-      intent: 'SERVICE_INFORMATION',
-      confidence: 0.9,
-      safety: 'SAFE',
-      language: detectLanguage(message),
-      extractedEntities: extractEntities(message),
-    };
-  }
-
   // 15. Greetings
-  if (/^(hi|hello|hey|namaste|good (morning|afternoon|evening)|hola)/i.test(lower) && lower.length < 40) {
+  if (/^(hi|hello|hey|namaste|good (morning|afternoon|evening)|hola)/i.test(lower)) {
     return {
       intent: 'GREETING',
       confidence: 0.95,
@@ -236,7 +261,7 @@ export async function classifyMessage(message: string): Promise<AIClassification
 
 function detectLanguage(text: string): 'en' | 'hi' | 'hinglish' {
   const lower = text.toLowerCase();
-  if (/(kya|kaise|kitna|hoga|chahiye|kab|hai|dhanyawad|shukriya|namaste|mujhe|karna|karwaiye|kardo|bataiye|padega|kharcha)/i.test(lower)) {
+  if (/(kya|kaise|kitna|hoga|chahiye|kab|hai|dhanyawad|shukriya|namaste|mujhe|karna|karwaiye|kardo|bataiye|padega|kharcha|shuru)/i.test(lower)) {
     return 'hinglish';
   }
   return 'en';
