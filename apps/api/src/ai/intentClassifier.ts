@@ -174,15 +174,29 @@ export async function classifyMessage(message: string): Promise<AIClassification
     };
   }
 
-  // 12. Appointment Availability & Open Slots
+  // 12. FAQ & Pre/Post Care
   if (
-    /(available slots|free slots|open timings|slots available|doctor available|free slot|koi free slot|are appointments available|check availability|open consultation slots|morning slot|available timings|pm open|am open)/i.test(
+    /(downtime|before laser|aftercare|care should i take|skin peeling|apply makeup|how long do results|painful|sun exposure|interval between|wash my hair|suitable for|safe for sensitive|mandatory before|consultation mandatory|sunscreen lagana|resume workouts|redness aati hai|bring a friend|wifi)/i.test(
+      lower
+    )
+  ) {
+    return {
+      intent: 'FAQ_QUERY',
+      confidence: 0.9,
+      safety: 'SAFE',
+      language: detectLanguage(message),
+      extractedEntities: extractEntities(message),
+    };
+  }
+
+  // 13. Appointment Availability & Open Slots
+  if (
+    /(available slots|free slots|open timings|slots available|doctor available|free slot|koi free slot|are appointments available|check availability|open consultation slots|morning slot|available timings|evening timings|pm open|am open|session available)/i.test(
       lower
     ) ||
     (/(available|slot)/i.test(lower) &&
-      !lower.includes('chemical peel') &&
-      !lower.includes('hydrafacial') &&
-      !lower.includes('laser') &&
+      !lower.includes('options are available') &&
+      !lower.includes('chemical peel acne ke liye available') &&
       !lower.includes('hi there, is anyone'))
   ) {
     return {
@@ -194,44 +208,15 @@ export async function classifyMessage(message: string): Promise<AIClassification
     };
   }
 
-  // 13. Service Information
+  // 14. Service Information
   if (
-    /(hydrafacial|laser|hair reduction|prp|chemical peel|botox|acne|scars|pigmentation|facial|glow|treatments do you have|permanent hota hai|difference between regular facial|options are available|technology do you use|suitable for male skin)/i.test(
-      lower
-    ) &&
-    !lower.includes('downtime') &&
-    !lower.includes('before laser') &&
-    !lower.includes('aftercare') &&
-    !lower.includes('peeling kitne din') &&
-    !lower.includes('apply makeup') &&
-    !lower.includes('results of botox last') &&
-    !lower.includes('is prp painful') &&
-    !lower.includes('sun exposure') &&
-    !lower.includes('interval between') &&
-    !lower.includes('wash my hair') &&
-    !lower.includes('safe for sensitive indian') &&
-    !lower.includes('sunscreen lagana') &&
-    !lower.includes('resume workouts') &&
-    !lower.includes('redness aati hai')
-  ) {
-    return {
-      intent: 'SERVICE_INFORMATION',
-      confidence: 0.91,
-      safety: 'SAFE',
-      language: detectLanguage(message),
-      extractedEntities: extractEntities(message),
-    };
-  }
-
-  // 14. FAQ & Pre/Post Care
-  if (
-    /(downtime|before laser|aftercare|care should i take|skin peeling|apply makeup|how long do results|painful|sun exposure|interval between|wash my hair|suitable for|safe for sensitive|mandatory before|sunscreen lagana|resume workouts|redness aati hai|bring a friend|wifi|consultation mandatory)/i.test(
+    /(hydrafacial|laser|hair reduction|prp|chemical peel|botox|acne|scars|pigmentation|facial|glow|treatments do you have|permanent hota hai|difference between regular facial|options are available|technology do you use)/i.test(
       lower
     )
   ) {
     return {
-      intent: 'FAQ_QUERY',
-      confidence: 0.9,
+      intent: 'SERVICE_INFORMATION',
+      confidence: 0.91,
       safety: 'SAFE',
       language: detectLanguage(message),
       extractedEntities: extractEntities(message),
