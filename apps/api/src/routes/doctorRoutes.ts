@@ -32,7 +32,7 @@ router.post('/', validateBody(createDoctorSchema), (req: AuthRequest, res: Respo
 
 // GET /doctors/:id
 router.get('/:id', (req: AuthRequest, res: Response) => {
-  const doctor = db.getDoctorById(req.params.id);
+  const doctor = db.getDoctorById(req.params.id as string);
   if (!doctor) {
     res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Doctor not found' } });
     return;
@@ -42,7 +42,7 @@ router.get('/:id', (req: AuthRequest, res: Response) => {
 
 // PATCH /doctors/:id
 router.patch('/:id', validateBody(updateDoctorSchema), (req: AuthRequest, res: Response) => {
-  const doctor = db.updateDoctor(req.params.id, req.body);
+  const doctor = db.updateDoctor(req.params.id as string, req.body);
   if (!doctor) {
     res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Doctor not found' } });
     return;
@@ -53,7 +53,7 @@ router.patch('/:id', validateBody(updateDoctorSchema), (req: AuthRequest, res: R
 // GET /doctors/:id/availability
 router.get('/:id/availability', (req: AuthRequest, res: Response) => {
   const date = (req.query.date as string) || new Date().toISOString().split('T')[0];
-  const availability = appointmentService.getAvailability({ date, doctorId: req.params.id });
+  const availability = appointmentService.getAvailability({ date, doctorId: req.params.id as string });
   res.json({ success: true, data: availability });
 });
 

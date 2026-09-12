@@ -14,7 +14,7 @@ router.get('/', (_req: AuthRequest, res: Response) => {
 
 // GET /conversations/:id
 router.get('/:id', (req: AuthRequest, res: Response) => {
-  const conversation = db.getConversationById(req.params.id);
+  const conversation = db.getConversationById(req.params.id as string);
   if (!conversation) {
     res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Conversation not found' } });
     return;
@@ -24,13 +24,13 @@ router.get('/:id', (req: AuthRequest, res: Response) => {
 
 // GET /conversations/:id/messages
 router.get('/:id/messages', (req: AuthRequest, res: Response) => {
-  const messages = db.getMessagesByConversationId(req.params.id);
+  const messages = db.getMessagesByConversationId(req.params.id as string);
   res.json({ success: true, data: messages });
 });
 
 // POST /conversations/:id/messages (Staff manual reply)
 router.post('/:id/messages', validateBody(sendStaffMessageSchema), (req: AuthRequest, res: Response) => {
-  const conv = db.getConversationById(req.params.id);
+  const conv = db.getConversationById(req.params.id as string);
   if (!conv) {
     res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Conversation not found' } });
     return;
@@ -62,7 +62,7 @@ router.post('/:id/messages', validateBody(sendStaffMessageSchema), (req: AuthReq
 
 // POST /conversations/:id/takeover (1-click Take Over by Receptionist)
 router.post('/:id/takeover', (req: AuthRequest, res: Response) => {
-  const conv = db.getConversationById(req.params.id);
+  const conv = db.getConversationById(req.params.id as string);
   if (!conv) {
     res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Conversation not found' } });
     return;
@@ -87,7 +87,7 @@ router.post('/:id/takeover', (req: AuthRequest, res: Response) => {
 
 // POST /conversations/:id/release (Return Conversation to AI)
 router.post('/:id/release', (req: AuthRequest, res: Response) => {
-  const conv = db.getConversationById(req.params.id);
+  const conv = db.getConversationById(req.params.id as string);
   if (!conv) {
     res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Conversation not found' } });
     return;

@@ -38,7 +38,7 @@ router.post('/', validateBody(createLeadSchema), (req: AuthRequest, res: Respons
 
 // GET /leads/:id
 router.get('/:id', (req: AuthRequest, res: Response) => {
-  const lead = db.getLeadById(req.params.id);
+  const lead = db.getLeadById(req.params.id as string);
   if (!lead) {
     res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Lead not found' } });
     return;
@@ -48,7 +48,7 @@ router.get('/:id', (req: AuthRequest, res: Response) => {
 
 // PATCH /leads/:id
 router.patch('/:id', validateBody(updateLeadSchema), (req: AuthRequest, res: Response) => {
-  const lead = db.updateLead(req.params.id, req.body);
+  const lead = db.updateLead(req.params.id as string, req.body);
   if (!lead) {
     res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Lead not found' } });
     return;

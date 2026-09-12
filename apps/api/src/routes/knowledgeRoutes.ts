@@ -36,7 +36,7 @@ router.post('/faqs', validateBody(createFaqSchema), (req: AuthRequest, res: Resp
 
 // PATCH /faqs/:id
 router.patch('/faqs/:id', validateBody(updateFaqSchema), (req: AuthRequest, res: Response) => {
-  const faq = db.updateFaq(req.params.id, req.body);
+  const faq = db.updateFaq(req.params.id as string, req.body);
   if (!faq) {
     res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'FAQ not found' } });
     return;
@@ -46,7 +46,7 @@ router.patch('/faqs/:id', validateBody(updateFaqSchema), (req: AuthRequest, res:
 
 // DELETE /faqs/:id
 router.delete('/faqs/:id', (req: AuthRequest, res: Response) => {
-  const deleted = db.deleteFaq(req.params.id);
+  const deleted = db.deleteFaq(req.params.id as string);
   if (!deleted) {
     res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'FAQ not found' } });
     return;
@@ -57,6 +57,7 @@ router.delete('/faqs/:id', (req: AuthRequest, res: Response) => {
 // ==========================================
 // Knowledge Documents & RAG Indexing
 // ==========================================
+// GET /knowledge/documents
 // GET /knowledge/documents
 router.get('/knowledge/documents', (_req: AuthRequest, res: Response) => {
   const docs = db.getKnowledgeDocuments();
@@ -96,7 +97,7 @@ router.post('/knowledge/documents', validateBody(createKnowledgeDocSchema), asyn
 
 // POST /knowledge/documents/:id/reindex
 router.post('/knowledge/documents/:id/reindex', async (req: AuthRequest, res: Response) => {
-  const doc = db.getKnowledgeDocuments().find((d) => d.id === req.params.id);
+  const doc = db.getKnowledgeDocuments().find((d) => d.id === (req.params.id as string));
   if (!doc) {
     res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Document not found' } });
     return;

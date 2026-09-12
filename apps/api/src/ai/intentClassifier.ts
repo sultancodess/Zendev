@@ -1,6 +1,5 @@
 import { IntentType, AIClassificationResult, SafetyClassification } from '@dermo/types';
 import { checkSafety } from './safetyGuard';
-import { GoogleGenAI } from '@google/genai';
 import { config } from '../config';
 
 export async function classifyMessage(message: string): Promise<AIClassificationResult> {

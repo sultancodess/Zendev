@@ -1,10 +1,9 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
+    "module": "CommonJS",
+    "moduleResolution": "Node",
     "outDir": "./dist",
-    "rootDir": "./src",
     "paths": {
       "@dermo/types": ["../../packages/types/src"],
       "@dermo/schemas": ["../../packages/schemas/src"]
@@ -12,3 +11,4 @@
   },
   "include": ["src/**/*"]
 }
+

@@ -36,7 +36,7 @@ router.post('/', validateBody(createAppointmentSchema), (req: AuthRequest, res: 
 
 // GET /appointments/:id
 router.get('/:id', (req: AuthRequest, res: Response) => {
-  const appointment = db.getAppointmentById(req.params.id);
+  const appointment = db.getAppointmentById(req.params.id as string);
   if (!appointment) {
     res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Appointment not found' } });
     return;
@@ -47,14 +47,14 @@ router.get('/:id', (req: AuthRequest, res: Response) => {
 // POST /appointments/:id/reschedule
 router.post('/:id/reschedule', validateBody(rescheduleAppointmentSchema), (req: AuthRequest, res: Response) => {
   const { date, startTime, reason } = req.body;
-  const appointment = appointmentService.rescheduleAppointment(req.params.id, date, startTime, reason);
+  const appointment = appointmentService.rescheduleAppointment(req.params.id as string, date, startTime, reason);
   res.json({ success: true, data: appointment });
 });
 
 // POST /appointments/:id/cancel
 router.post('/:id/cancel', validateBody(cancelAppointmentSchema), (req: AuthRequest, res: Response) => {
   const { reason } = req.body;
-  const appointment = appointmentService.cancelAppointment(req.params.id, reason);
+  const appointment = appointmentService.cancelAppointment(req.params.id as string, reason);
   res.json({ success: true, data: appointment });
 });
 

@@ -31,7 +31,7 @@ router.post('/', validateBody(createServiceSchema), (req: AuthRequest, res: Resp
 
 // GET /services/:id
 router.get('/:id', (req: AuthRequest, res: Response) => {
-  const service = db.getServiceById(req.params.id);
+  const service = db.getServiceById(req.params.id as string);
   if (!service) {
     res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Service not found' } });
     return;
@@ -41,7 +41,7 @@ router.get('/:id', (req: AuthRequest, res: Response) => {
 
 // PATCH /services/:id
 router.patch('/:id', validateBody(updateServiceSchema), (req: AuthRequest, res: Response) => {
-  const service = db.updateService(req.params.id, req.body);
+  const service = db.updateService(req.params.id as string, req.body);
   if (!service) {
     res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Service not found' } });
     return;
