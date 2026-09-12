@@ -1,9 +1,13 @@
-import { describe, it } from 'node:test';
+import { describe, it, before } from 'node:test';
 import assert from 'node:assert';
 import { whatsappService } from '../../src/services/whatsappService';
 import { config } from '../../src/config';
+import { seedDatabase } from '../../src/database/seed';
 
 describe('Integration Tests: Meta WhatsApp Cloud API & Webhook Idempotency', () => {
+  before(() => {
+    seedDatabase();
+  });
   it('should verify webhook challenge with valid verify token', () => {
     const challenge = 'test_challenge_12345';
     const result = whatsappService.verifyWebhook('subscribe', config.whatsapp.verifyToken, challenge);

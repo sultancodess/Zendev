@@ -1,9 +1,13 @@
-import { describe, it } from 'node:test';
+import { describe, it, beforeEach } from 'node:test';
 import assert from 'node:assert';
 import { leadService } from '../../src/services/leadService';
 import { db } from '../../src/database/db';
+import { seedDatabase } from '../../src/database/seed';
 
 describe('Unit Tests: Lead Management & Lifecycle Transitions', () => {
+  beforeEach(() => {
+    seedDatabase();
+  });
   it('should create or return existing lead by phone number', () => {
     const phone = '+919811122233';
     const lead1 = leadService.getOrCreateLead({

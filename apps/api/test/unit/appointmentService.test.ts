@@ -2,6 +2,7 @@ import { describe, it, beforeEach } from 'node:test';
 import assert from 'node:assert';
 import { appointmentService } from '../../src/services/appointmentService';
 import { db } from '../../src/database/db';
+import { seedDatabase } from '../../src/database/seed';
 
 describe('Unit Tests: Appointment Scheduling, Availability & Conflict Prevention', () => {
   let testDoctorId: string;
@@ -10,6 +11,7 @@ describe('Unit Tests: Appointment Scheduling, Availability & Conflict Prevention
   const testDate = '2026-10-12'; // Monday
 
   beforeEach(() => {
+    seedDatabase();
     const doc = db.getDoctors()[0];
     testDoctorId = doc.id;
     const srv = db.getServices()[0];
@@ -58,7 +60,7 @@ describe('Unit Tests: Appointment Scheduling, Availability & Conflict Prevention
 
     assert.ok(booking.id);
     assert.strictEqual(booking.startTime, '10:30');
-    assert.strictEqual(booking.status, 'CONFIRMED');
+    assert.strictEqual(booking.status, 'BOOKED');
 
     // Slot at 10:30 should now be unavailable
     const availability = appointmentService.getAvailability({
@@ -103,7 +105,7 @@ describe('Unit Tests: Appointment Scheduling, Availability & Conflict Prevention
   });
 
   it('should reschedule an existing appointment to a new open slot', () => {
-    const appts = db.getAppointments().filter((a) => a.status === 'CONFIRMED');
+    const appts = db.getAppointments().filter((a) => a.status === 'BOOKED' || a.status === 'CONFIRMED');
     const target = appts[0];
     assert.ok(target);
 
@@ -115,11 +117,11 @@ describe('Unit Tests: Appointment Scheduling, Availability & Conflict Prevention
     );
 
     assert.strictEqual(rescheduled.startTime, '11:30');
-    assert.strictEqual(rescheduled.status, 'CONFIRMED');
+    assert.strictEqual(rescheduled.status, 'RESCHEDULED');
   });
 
   it('should cancel an existing appointment and free up the slot', () => {
-    const appts = db.getAppointments().filter((a) => a.status === 'CONFIRMED');
+    const appts = db.getAppointments().filter((a) => a.status === 'BOOKED' || a.status === 'CONFIRMED' || a.status === 'RESCHEDULED');
     const target = appts[0];
     assert.ok(target);
 

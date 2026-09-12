@@ -1,9 +1,13 @@
-import { describe, it } from 'node:test';
+import { describe, it, before } from 'node:test';
 import assert from 'node:assert';
 import { vectorStore } from '../../src/ai/vectorStore';
 import { ragEngine } from '../../src/ai/ragEngine';
+import { seedDatabase } from '../../src/database/seed';
 
 describe('Integration Tests: Vector Store Indexing & RAG Retrieval', () => {
+  before(() => {
+    seedDatabase();
+  });
   it('should index knowledge chunk and retrieve via similarity search', async () => {
     const docId = 'doc_test_100';
     const content = 'DermaCare clinic offers complimentary valet parking directly in front of the Koramangala branch.';

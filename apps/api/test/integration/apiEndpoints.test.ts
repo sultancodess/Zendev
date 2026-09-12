@@ -7,20 +7,20 @@ describe('Integration Tests: Express REST API Endpoints', () => {
   let server: Server;
   let baseUrl: string;
 
-  before((done) => {
+  before(async () => {
     const app = createApp();
-    server = app.listen(0, () => {
-      const address = server.address() as any;
-      baseUrl = `http://127.0.0.1:${address.port}`;
-      done();
+    await new Promise<void>((resolve) => {
+      server = app.listen(0, () => {
+        const address = server.address() as any;
+        baseUrl = `http://127.0.0.1:${address.port}`;
+        resolve();
+      });
     });
   });
 
-  after((done) => {
+  after(async () => {
     if (server) {
-      server.close(done);
-    } else {
-      done();
+      await new Promise<void>((resolve) => server.close(() => resolve()));
     }
   });
 

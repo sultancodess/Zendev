@@ -93,14 +93,25 @@ export class VectorStore {
   }
 
   // Similarity Search for RAG
-  async search(query: string, limit: number = 3, threshold: number = 0.4): Promise<SearchResult[]> {
+  async search(query: string, limit: number = 3, threshold: number = 0.15): Promise<SearchResult[]> {
     const queryVector = await this.generateEmbedding(query);
+    const queryTokens = query.toLowerCase().match(/\w+/g) || [];
     const chunks = db.getKnowledgeChunks();
 
     const scored: SearchResult[] = chunks
       .map((chunk) => {
-        const score = chunk.embedding ? this.cosineSimilarity(queryVector, chunk.embedding) : 0;
-        return { chunk, score };
+        const cosScore = chunk.embedding ? this.cosineSimilarity(queryVector, chunk.embedding) : 0;
+        
+        // Keyword overlap boost
+        const contentLower = chunk.content.toLowerCase();
+        let keywordMatches = 0;
+        queryTokens.forEach((t) => {
+          if (t.length > 2 && contentLower.includes(t)) keywordMatches++;
+        });
+        const keywordBoost = queryTokens.length > 0 ? (keywordMatches / queryTokens.length) * 0.5 : 0;
+        
+        const finalScore = cosScore + keywordBoost;
+        return { chunk, score: finalScore };
       })
       .filter((res) => res.score >= threshold)
       .sort((a, b) => b.score - a.score)

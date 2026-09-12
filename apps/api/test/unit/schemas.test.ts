@@ -21,6 +21,7 @@ describe('Unit Tests: Zod Schemas Validation', () => {
       specialty: ['Medical Dermatology', 'Aesthetic Lasers'],
       consultationFee: 1000,
       avatarUrl: 'https://example.com/priya.jpg',
+      bio: 'Dr. Priya Sharma is a board-certified dermatologist with over 12 years of clinical experience.',
       schedule: [
         {
           day: 'monday',
@@ -32,7 +33,7 @@ describe('Unit Tests: Zod Schemas Validation', () => {
           slotDurationMinutes: 30,
         },
       ],
-      isActive: true,
+      status: 'ACTIVE',
     };
 
     const result = createDoctorSchema.safeParse(validDoctor);
@@ -42,7 +43,7 @@ describe('Unit Tests: Zod Schemas Validation', () => {
   it('should reject doctor schema with missing required fields', () => {
     const invalidDoctor = {
       name: 'Dr. Test',
-      // missing qualification, fee, etc.
+      // missing qualification, bio, fee, etc.
     };
 
     const result = createDoctorSchema.safeParse(invalidDoctor);
@@ -52,13 +53,15 @@ describe('Unit Tests: Zod Schemas Validation', () => {
   it('should validate valid service schema', () => {
     const validService = {
       name: 'HydraFacial MD Elite Glow',
-      category: 'FACIAL',
-      description: 'Deep cleansing and hydration facial treatment',
+      category: 'FACIAL_AESTHETICS',
+      description: 'Deep cleansing, gentle exfoliation, and intense hydration facial treatment.',
+      benefits: ['Instant Glow', 'Zero Downtime', 'Deep Cleansing'],
       durationMinutes: 45,
       price: 3500,
       depositRequired: true,
       depositAmount: 500,
-      isActive: true,
+      bookingEnabled: true,
+      status: 'ACTIVE',
     };
 
     const result = createServiceSchema.safeParse(validService);

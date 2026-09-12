@@ -1,9 +1,13 @@
-import { describe, it } from 'node:test';
+import { describe, it, beforeEach } from 'node:test';
 import assert from 'node:assert';
 import { db } from '../../src/database/db';
 import { agentEngine } from '../../src/ai/agentEngine';
+import { seedDatabase } from '../../src/database/seed';
 
 describe('Unit Tests: Conversation State Machine & Human Takeover Console', () => {
+  beforeEach(() => {
+    seedDatabase();
+  });
   it('should pause automated AI when human takeover is active', async () => {
     const phone = '+919988776655';
     
